@@ -36,6 +36,41 @@ class RoundBox(ttk.Label):
         ttk.Label.__init__(self, parent, image=self._photo, *args, **kwargs)
         self.pack_propagate(0)
 
+class AnimationBox(tk.Canvas):
+    def __init__(self, parent, posx, posy, height, width, i_height, i_width):
+        tk.Canvas.__init__(self, parent, width=width, height=height, bg='white')
+        self.place(x=posx, y=posy)
+        self.coords_x = posx
+        self.coords_y = posy
+        #img_raw = Pil_image.open("./rounded2.png")#.resize((i_width, i_height), Pil_image.ANTIALIAS)
+        #self._photo = Pil_imageTk.PhotoImage(img_raw)
+        #self.create_image(i_width, i_height, image=self._photo)
+        self.rect = self.create_rectangle(0, 0, 539, 40, fill='white', outline='white')
+        self.oval = self.create_oval(0, 20, 539, 60, fill='white', outline='white')
+        #self.create_rectangle(0, 0, width, height//2, fill='white')
+        #self.create_oval(width, height//2, width, height, fill='red')
+
+    def move_to(self, parent, posx, posy, delay):
+        # x1 = self.coords_x
+        # x2 = self.coords_y
+        (x1, y1, x2, y2) = self.coords(self.rect)
+        print(x1, y1)
+        dx = 0
+        dy = 0
+        if posx == int(x1) and posy == int(x2):
+            return
+        if posx > x1:
+            dx = 1
+        elif posx < x1:
+            dx = -1
+        if posy > y1:
+            dy = 1
+        elif posy < y1:
+            dy = -1
+        self.move(self.rect, dx, dy)
+        self.move(self.oval, dx, dy)
+        parent.after(delay, self.move_to, parent, posx, posy, delay)
+
 def main():
     window = tk.Tk()
     window.configure(background='#f0f0f0')
@@ -48,6 +83,7 @@ def main():
     search_label.grid(row=0, column=0, sticky="we", columnspan=3)
     rounded = RoundBox(window, 30, 539)
     rounded.grid(row=1, column=0, sticky="we", columnspan=3)
+    #animBox.place(x=40, y=0)
     #search = SearchBox(window, 'Start typing...')
     #search.grid(row=0, column=0, sticky="we", columnspan=3)
     #window.grid_columnconfigure(0, weight=2)
@@ -59,6 +95,8 @@ def main():
             #btn1.grid(row=i+1, column=j+1)
             btn = AppButton(window, 'Chrome', f_style='L.TFrame', width=180, height=200, style='W.TButton')
             btn.grid(row=i+2, column=j)
+    animBox = AnimationBox(window, 0, 0, 600, 539, 1, 1)
+    animBox.move_to(window, 0, 700, 5)
     window.mainloop()
 
 if __name__ == "__main__":
