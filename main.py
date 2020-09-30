@@ -36,19 +36,23 @@ class RoundBox(ttk.Label):
         ttk.Label.__init__(self, parent, image=self._photo, *args, **kwargs)
         self.pack_propagate(0)
 
-class AnimationBox(tk.Canvas):
+class CanvasBox(tk.Canvas):
     def __init__(self, parent, posx, posy, height, width, i_height, i_width):
         tk.Canvas.__init__(self, parent, width=width, height=height, bg='white')
         self.place(x=posx, y=posy)
-        self.coords_x = posx
-        self.coords_y = posy
+        self.c_width = width
+        self.c_height = height
         #img_raw = Pil_image.open("./rounded2.png")#.resize((i_width, i_height), Pil_image.ANTIALIAS)
         #self._photo = Pil_imageTk.PhotoImage(img_raw)
         #self.create_image(i_width, i_height, image=self._photo)
-        self.rect = self.create_rectangle(0, 0, 539, 40, fill='white', outline='white')
-        self.oval = self.create_oval(0, 20, 539, 60, fill='white', outline='white')
+        # self.rect = self.create_rectangle(0, 0, 539, 40, fill='white', outline='white')
+        # self.oval = self.create_oval(0, 20, 539, 60, fill='white', outline='white')
         #self.create_rectangle(0, 0, width, height//2, fill='white')
         #self.create_oval(width, height//2, width, height, fill='red')
+    
+    def create_roundbox(self):
+        self.rect = self.create_rectangle(0, 0, 539, 40, fill='red', outline='white')
+        #self.oval = self.create_oval(0, 20, 539, 60, fill='white', outline='red')
 
     def move_to(self, parent, posx, posy, delay):
         # x1 = self.coords_x
@@ -57,7 +61,7 @@ class AnimationBox(tk.Canvas):
         print(x1, y1)
         dx = 0
         dy = 0
-        if posx == int(x1) and posy == int(x2):
+        if posx == int(x1) and posy == int(y1):
             return
         if posx > x1:
             dx = 1
@@ -68,35 +72,39 @@ class AnimationBox(tk.Canvas):
         elif posy < y1:
             dy = -1
         self.move(self.rect, dx, dy)
-        self.move(self.oval, dx, dy)
+        self.c_width += dx
+        self.c_height += dy
+        self.config(width=self.c_width, height=self.c_height)
+        #self.move(self.oval, dx, dy)
         parent.after(delay, self.move_to, parent, posx, posy, delay)
 
 def main():
     window = tk.Tk()
     window.configure(background='#f0f0f0')
+    window.geometry("540x672")
     style = ttk.Style()
     style.configure('W.TButton', font=(25), foreground="#535353", background="white", relief='flat', highlightthickness=0)
     style.map('W.TButton', background=[('pressed', '#c3c3c3'), ('active', '#ececec')])
     style.configure('L.TFrame', background="#e7e7e7")
     style.configure('G.TLabel', foreground="#535353", font=(25))
-    search_label = LabelBox(window, 'Start typing...', height=40, style='G.TLabel')
-    search_label.grid(row=0, column=0, sticky="we", columnspan=3)
-    rounded = RoundBox(window, 30, 539)
-    rounded.grid(row=1, column=0, sticky="we", columnspan=3)
-    #animBox.place(x=40, y=0)
-    #search = SearchBox(window, 'Start typing...')
-    #search.grid(row=0, column=0, sticky="we", columnspan=3)
-    #window.grid_columnconfigure(0, weight=2)
-    #window.grid_columnconfigure(1, weight=1)
-    #window.grid_columnconfigure(2, weight=3)
+    # animBox.move_to(window, 0, 700, 5)
+    window.grid_rowconfigure(0, minsize=80)
     for i in range(3):
         for j in range(3):
             #btn1 = ttk.Button(window, text='Chrome', style='W.TButton')
             #btn1.grid(row=i+1, column=j+1)
             btn = AppButton(window, 'Chrome', f_style='L.TFrame', width=180, height=200, style='W.TButton')
             btn.grid(row=i+2, column=j)
-    animBox = AnimationBox(window, 0, 0, 600, 539, 1, 1)
-    animBox.move_to(window, 0, 700, 5)
+    canvas = CanvasBox(window, 0, 0, 80, 539, 1, 1)
+    canvas.create_roundbox()
+    canvas.move_to(window, 0, 672, 5)
+
+    search_label = LabelBox(canvas, 'Start typing...', width=539, height=40, style='G.TLabel')
+    #search_label.grid(row=0, column=0, sticky="we", columnspan=3)
+    search_label.place(x=0, y=0)
+    rounded = RoundBox(canvas, 40, 539)
+    #rounded.grid(row=1, column=0, sticky="we", columnspan=3)
+    rounded.place(x=0, y=40)
     window.mainloop()
 
 if __name__ == "__main__":
