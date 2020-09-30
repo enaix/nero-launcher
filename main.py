@@ -55,13 +55,19 @@ class CanvasBox(tk.Canvas):
         #self.create_oval(width, height//2, width, height, fill='red')
     
     def create_roundbox(self):
-        self.rect = self.create_rectangle(0, 0, 539, 80, fill='red', outline='white')
+        self.rect = self.create_rectangle(0, 0, 539, 80, fill='white', outline='white')
         #self.oval = self.create_oval(0, 20, 539, 60, fill='white', outline='red')
 
     def create_entries(self):
+        self.buttons_list = []
         for i in range(15):
             btn = AppButton(self, 'Chrome', f_style='L.TFrame', width=539, height=40, img_width=20, compound='left', style='W.TButton')
             btn.place(x=0, y=80+i*40)
+            self.buttons_list.append(btn)
+
+    def destroy_entries(self):
+        for i in self.buttons_list:
+            i.destroy()
 
     def move_to(self, parent, posx, posy, delay):
         # x1 = self.coords_x
@@ -105,8 +111,10 @@ def main():
             btn.grid(row=i+2, column=j)
     canvas = CanvasBox(window, 0, 0, 80, 539, 1, 1)
     canvas.create_roundbox()
-    canvas.move_to(window, 0, 672, 3)
-    window.after(2500, canvas.create_entries)
+    canvas.move_to(window, 0, 672, 1)
+    window.after(870, canvas.create_entries)
+    window.after(1870, canvas.destroy_entries)
+    window.after(1900, canvas.move_to, window, 0, 0, 1)
     search_label = LabelBox(canvas, 'Start typing...', width=539, height=40, style='G.TLabel')
     #search_label.grid(row=0, column=0, sticky="we", columnspan=3)
     search_label.place(x=0, y=0)
