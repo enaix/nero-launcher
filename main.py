@@ -1,14 +1,18 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from PIL import Image as Pil_image, ImageTk as Pil_imageTk
+from pynput.keyboard import Key, Listener
+
+#def on_press(key):
+
 
 class AppButton(ttk.Frame):
-    def __init__(self, parent, text="", f_style=None, height=None, width=None, *args, **kwargs):
+    def __init__(self, parent, text="", f_style=None, height=None, width=None, img_width=100, compound='top', *args, **kwargs):
         ttk.Frame.__init__(self, parent, height=height, width=width, style=f_style)
-        img_raw = Pil_image.open("/usr/share/icons/hicolor/128x128/apps/firefox-esr.png").resize((100, 100), Pil_image.ANTIALIAS)
+        img_raw = Pil_image.open("/usr/share/icons/hicolor/128x128/apps/firefox-esr.png").resize((img_width, img_width), Pil_image.ANTIALIAS)
         self._photo = Pil_imageTk.PhotoImage(img_raw)
         self.pack_propagate(0)
-        self._btn = ttk.Button(self, text=text, image=self._photo, compound='top', *args, **kwargs)
+        self._btn = ttk.Button(self, text=text, image=self._photo, compound=compound, *args, **kwargs)
         self._btn.pack(fill=tk.BOTH, expand=1, padx=1, pady=1)
         #label = ttk.Label(self._btn, image=photo)
         #label.pack(side=tk.RIGHT)
@@ -51,14 +55,18 @@ class CanvasBox(tk.Canvas):
         #self.create_oval(width, height//2, width, height, fill='red')
     
     def create_roundbox(self):
-        self.rect = self.create_rectangle(0, 0, 539, 40, fill='red', outline='white')
+        self.rect = self.create_rectangle(0, 0, 539, 80, fill='red', outline='white')
         #self.oval = self.create_oval(0, 20, 539, 60, fill='white', outline='red')
+
+    def create_entries(self):
+        for i in range(15):
+            btn = AppButton(self, 'Chrome', f_style='L.TFrame', width=539, height=40, img_width=20, compound='left', style='W.TButton')
+            btn.place(x=0, y=80+i*40)
 
     def move_to(self, parent, posx, posy, delay):
         # x1 = self.coords_x
         # x2 = self.coords_y
         (x1, y1, x2, y2) = self.coords(self.rect)
-        print(x1, y1)
         dx = 0
         dy = 0
         if posx == int(x1) and posy == int(y1):
@@ -97,8 +105,8 @@ def main():
             btn.grid(row=i+2, column=j)
     canvas = CanvasBox(window, 0, 0, 80, 539, 1, 1)
     canvas.create_roundbox()
-    canvas.move_to(window, 0, 672, 5)
-
+    canvas.move_to(window, 0, 672, 3)
+    window.after(2500, canvas.create_entries)
     search_label = LabelBox(canvas, 'Start typing...', width=539, height=40, style='G.TLabel')
     #search_label.grid(row=0, column=0, sticky="we", columnspan=3)
     search_label.place(x=0, y=0)
