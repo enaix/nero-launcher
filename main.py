@@ -1,7 +1,7 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from PIL import Image as Pil_image, ImageTk as Pil_imageTk
-from pynput.keyboard import Key, Listener
+#from pynput.keyboard import Key, Listener
 
 #def on_press(key):
 
@@ -60,9 +60,9 @@ class CanvasBox(tk.Canvas):
 
     def create_entries(self):
         self.buttons_list = []
-        for i in range(15):
-            btn = AppButton(self, 'Chrome', f_style='L.TFrame', width=539, height=40, img_width=20, compound='left', style='W.TButton')
-            btn.place(x=0, y=80+i*40)
+        for i in range(14):
+            btn = AppButton(self, 'Chrome', f_style='L.TFrame', width=539, height=60, img_width=25, compound='left', style='W.TButton')
+            btn.place(x=0, y=80+i*60)
             self.buttons_list.append(btn)
 
     def destroy_entries(self):
@@ -121,6 +121,7 @@ def main():
     rounded = RoundBox(canvas, 40, 539)
     #rounded.grid(row=1, column=0, sticky="we", columnspan=3)
     rounded.place(x=0, y=40)
+
     window.mainloop()
 
 if __name__ == "__main__":
