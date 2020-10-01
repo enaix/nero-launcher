@@ -25,13 +25,21 @@ class SearchBox(ttk.Combobox):
 class LabelBox(ttk.Frame):
     def __init__(self, parent, text="", s_style=None, height=None, width=None, style=None, *args, **kwargs):
         ttk.Frame.__init__(self, parent, height=height, width=width, style=s_style)
-        self._label = ttk.Label(self, text=text, style=style, justify=tk.CENTER)
+        self.labeltext = text
+        self.emptyQuery = True
+        self._label = ttk.Label(self, text=self.labeltext, style=style, justify=tk.CENTER)
         img_raw = Pil_image.open("./search.png").resize((25, 25), Pil_image.ANTIALIAS)
         self._photo = Pil_imageTk.PhotoImage(img_raw)
         self._photoLabel = ttk.Label(self, image=self._photo, justify=tk.LEFT, *args, **kwargs)
         self.pack_propagate(0)
         self._photoLabel.pack(side=tk.LEFT, padx=30, pady=5)
         self._label.pack(side=tk.LEFT, padx=130, pady=5)
+
+    def changeText(self, text):
+        self.labeltext = text
+        if len(text) >= 17:
+            text = str(text[::-1][:17] + '..')[::-1]
+        self._label.configure(text=text)
 
 class RoundBox(ttk.Label):
     def __init__(self, parent, height=None, width=None, style=None, *args, **kwargs):
@@ -115,12 +123,35 @@ def main():
     window.after(870, canvas.create_entries)
     window.after(1870, canvas.destroy_entries)
     window.after(1900, canvas.move_to, window, 0, 0, 1)
+
     search_label = LabelBox(canvas, 'Start typing...', width=539, height=40, style='G.TLabel')
-    #search_label.grid(row=0, column=0, sticky="we", columnspan=3)
+    #search_label.grid(row=0, column=0, sticky="we", columnspan=3) 
     search_label.place(x=0, y=0)
     rounded = RoundBox(canvas, 40, 539)
     #rounded.grid(row=1, column=0, sticky="we", columnspan=3)
     rounded.place(x=0, y=40)
+    
+    def key(event):
+        if search_label.emptyQuery and not search_label.labeltext == "":
+            search_label.changeText("")
+            search_label.emptyQuery = False
+        search_label.changeText(search_label.labeltext + str(event.char))
+
+    def delete(event):
+        text = search_label.labeltext
+        if len(text) == 1:
+            text = ""
+        elif search_label.emptyQuery:
+            pass
+        else:
+            text = text[:-1]
+        search_label.changeText(text)
+        if not search_label.emptyQuery and search_label.labeltext == "":
+            search_label.changeText("Start typing...")
+            search_label.emptyQuery = True
+
+    window.bind("<Key>", key)
+    window.bind("<BackSpace>", delete)
 
     window.mainloop()
 
