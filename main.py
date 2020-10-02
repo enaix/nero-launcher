@@ -74,11 +74,13 @@ class CanvasBox(tk.Canvas):
         #self.rect = self.create_rectangle(0, 0, 539, 80, fill='white', outline='white')
         #self.oval = self.create_oval(0, 20, 539, 60, fill='white', outline='red')
 
-    def create_entries(self):
+    def create_entries(self, focus_func, unfocus_func):
         self.buttons_list = []
         for i in range(10):
             btn = AppButton(self, 'Chrome', f_style='L.TFrame', width=539, height=60, img_width=25, compound='left', style='W.TButton')
             btn.place(x=0, y=80+i*60)
+            btn.bind("<FocusIn>", focus_func)
+            btn.bind("<FocusOut>", unfocus_func)
             self.buttons_list.append(btn)
 
     def destroy_entries(self):
@@ -157,7 +159,7 @@ def main():
     style.configure('W.TButton', font=(25), foreground="#535353", background="white", relief='flat', highlightthickness=0)
     style.map('W.TButton', background=[('pressed', '#c3c3c3'), ('active', '#ececec')])
     style.configure('WF.TButton', font=(25), foreground="#535353", background="#c1c1c1", relief='flat', highlightthickness=0)
-    style.map('WF.TButton', background=[('pressed', '#bbbbbb'), ('active', '#c1c1c1')])
+    style.map('WF.TButton', background=[('pressed', '#b3b3b3'), ('active', '#c1c1c1')])
     style.configure('L.TFrame', background="#e7e7e7")
     style.configure('G.TLabel', foreground="#535353", font=(25))
     # animBox.move_to(window, 0, 700, 5)
@@ -194,7 +196,7 @@ def main():
     #rounded.grid(row=1, column=0, sticky="we", columnspan=3)
     rounded.place(x=0, y=40)
     
-    canvas.create_entries()
+    canvas.create_entries(set_focus_color, unset_focus_color)
 
     buttons[0][0].focus_on_btn()
 
