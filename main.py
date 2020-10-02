@@ -61,6 +61,10 @@ class CanvasBox(tk.Canvas):
         self.place(x=posx, y=posy)
         self.c_width = width
         self.c_height = height
+
+        self.moving = False
+        self.change_direction = False
+        self.new_direction = (0, 0)
         #img_raw = Pil_image.open("./rounded2.png")#.resize((i_width, i_height), Pil_image.ANTIALIAS)
         #self._photo = Pil_imageTk.PhotoImage(img_raw)
         #self.create_image(i_width, i_height, image=self._photo)
@@ -113,41 +117,63 @@ class CanvasBox(tk.Canvas):
         #parent.update_idletasks()
         parent.after(delay, self.move_to, parent, posx, posy, delay)
 
-    def move_to_non_recursive(self, parent, posx, posy, delay, step=1):
+    def get_delta(self, curx, cury, posx, posy, step):
+        dx = 0
+        dy = 0
+        if posx > curx:
+            dx = step
+        elif posx < curx:
+            dx = -step
+        if posy > cury:
+            dy = step
+        elif posy < cury:
+            dy = -step
+        return dx, dy
+
+    def move_to_non_recursive(self, parent, posx, posy, delay, step=1, speed=1, frame_skip=10):
         # x1 = self.coords_x
         # x2 = self.coords_y
         # (x1, y1, x2, y2) = self.coords(self.rect)
+        if self.moving:
+            self.change_direction = True
+            self.new_direction = (posx, posy)
+            return
+        self.moving = True
         x1 = self.c_width
         y1 = self.c_height
         dx = 0
         dy = 0
         if posx == int(x1) and posy == int(y1):
             return
-        if posx > x1:
-            dx = step
-        elif posx < x1:
-            dx = -step
-        if posy > y1:
-            dy = step
-        elif posy < y1:
-            dy = -step
+        (dx, dy) = self.get_delta(x1, y1, posx, posy, step)
         #self.move(self.rect, dx, dy)
+        
+        if speed < 1:
+            speed = 1
+        if frame_skip < 1:
+            frame_skip = 1
+
         i = 0
         while True:
             if posx == int(self.c_width) and posy == int(self.c_height):
                 break
+            if self.change_direction:
+                (posx, posy) = self.new_direction
+                (dx, dy) = self.get_delta(self.c_width, self.c_height, posx, posy, step)
+                self.change_direction = False
             self.c_width += dx
             self.c_height += dy
-            time.sleep(0.001)
+            if i % speed == 0:
+                time.sleep(0.001)
             try:
                 self.config(width=self.c_width, height=self.c_height)
             except tk._tkinter.TclError:
                 break
-            if i % 10 == 0:
+            if i % frame_skip == 0:
                 parent.update()
             i += 1
         #self.move(self.oval, dx, dy)
-       
+        self.moving = False
         #parent.after(delay, self.move_to, parent, posx, posy, delay)
 
 def main():
@@ -207,7 +233,7 @@ def main():
             search_label.changeText("")
             search_label.emptyQuery = False
             search_label.changeText(search_label.labeltext + str(event.char))
-            canvas.move_to_non_recursive(window, 539, 672, 1, step=1)
+            canvas.move_to_non_recursive(window, 539, 672, 1, step=1, speed=5)
             #window.after(870//2, canvas.create_entries)
         else:
             search_label.changeText(search_label.labeltext + str(event.char))
@@ -225,7 +251,7 @@ def main():
             search_label.changeText("Start typing...")
             search_label.emptyQuery = True
             #canvas.destroy_entries()
-            canvas.move_to_non_recursive(window, 539, 80, 1, step=1)
+            canvas.move_to_non_recursive(window, 539, 80, 1, step=1, speed=7)
 
     def esc(event):
         window.destroy()
