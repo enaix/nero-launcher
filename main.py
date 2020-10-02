@@ -16,6 +16,13 @@ class AppButton(ttk.Frame):
         self._btn.pack(fill=tk.BOTH, expand=1, padx=1, pady=1)
         #label = ttk.Label(self._btn, image=photo)
         #label.pack(side=tk.RIGHT)
+    
+    def focus_on_btn(self):
+        self.focus_set()
+        self._btn.focus_set()
+
+    def set_style(self, style):
+        self._btn.configure(style=style)
 
 class SearchBox(ttk.Combobox):
     def __init__(self, parent, text="", style=None, height=None, width=None, *args, **kwargs):
@@ -149,16 +156,30 @@ def main():
     style = ttk.Style()
     style.configure('W.TButton', font=(25), foreground="#535353", background="white", relief='flat', highlightthickness=0)
     style.map('W.TButton', background=[('pressed', '#c3c3c3'), ('active', '#ececec')])
+    style.configure('WF.TButton', font=(25), foreground="#535353", background="#c1c1c1", relief='flat', highlightthickness=0)
+    style.map('WF.TButton', background=[('pressed', '#bbbbbb'), ('active', '#c1c1c1')])
     style.configure('L.TFrame', background="#e7e7e7")
     style.configure('G.TLabel', foreground="#535353", font=(25))
     # animBox.move_to(window, 0, 700, 5)
+
+    def set_focus_color(event):
+        event.widget.set_style('WF.TButton')
+    
+    def unset_focus_color(event):
+        event.widget.set_style('W.TButton')
+
     window.grid_rowconfigure(0, minsize=80)
+    buttons = []
     for i in range(3):
+        buttons.append([])
         for j in range(3):
             #btn1 = ttk.Button(window, text='Chrome', style='W.TButton')
             #btn1.grid(row=i+1, column=j+1)
             btn = AppButton(window, 'Chrome', f_style='L.TFrame', width=180, height=200, style='W.TButton')
             btn.grid(row=i+2, column=j)
+            btn.bind("<FocusIn>", set_focus_color)
+            btn.bind("<FocusOut>", unset_focus_color)
+            buttons[i].append(btn)
     canvas = CanvasBox(window, 0, 0, 80, 539, 1, 1)
     canvas.create_roundbox()
     #canvas.move_to(window, 0, 672, 1)
@@ -174,6 +195,8 @@ def main():
     rounded.place(x=0, y=40)
     
     canvas.create_entries()
+
+    buttons[0][0].focus_on_btn()
 
     def key(event):
         if not str.isalpha(str(event.char)):
