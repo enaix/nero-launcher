@@ -1,7 +1,7 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from PIL import Image as Pil_image, ImageTk as Pil_imageTk
-#from pynput.keyboard import Key, Listener
+import time
 
 #def on_press(key):
 
@@ -63,12 +63,13 @@ class CanvasBox(tk.Canvas):
         #self.create_oval(width, height//2, width, height, fill='red')
     
     def create_roundbox(self):
-        self.rect = self.create_rectangle(0, 0, 539, 80, fill='white', outline='white')
+        pass
+        #self.rect = self.create_rectangle(0, 0, 539, 80, fill='white', outline='white')
         #self.oval = self.create_oval(0, 20, 539, 60, fill='white', outline='red')
 
     def create_entries(self):
         self.buttons_list = []
-        for i in range(14):
+        for i in range(10):
             btn = AppButton(self, 'Chrome', f_style='L.TFrame', width=539, height=60, img_width=25, compound='left', style='W.TButton')
             btn.place(x=0, y=80+i*60)
             self.buttons_list.append(btn)
@@ -77,28 +78,65 @@ class CanvasBox(tk.Canvas):
         for i in self.buttons_list:
             i.destroy()
 
-    def move_to(self, parent, posx, posy, delay):
+    def move_to(self, parent, posx, posy, delay, step=1):
         # x1 = self.coords_x
         # x2 = self.coords_y
-        (x1, y1, x2, y2) = self.coords(self.rect)
+        # (x1, y1, x2, y2) = self.coords(self.rect)
+        x1 = self.c_width
+        y1 = self.c_height
         dx = 0
         dy = 0
         if posx == int(x1) and posy == int(y1):
             return
         if posx > x1:
-            dx = 1
+            dx = step
         elif posx < x1:
-            dx = -1
+            dx = -step
         if posy > y1:
-            dy = 1
+            dy = step
         elif posy < y1:
-            dy = -1
-        self.move(self.rect, dx, dy)
+            dy = -step
+        #self.move(self.rect, dx, dy)
         self.c_width += dx
         self.c_height += dy
         self.config(width=self.c_width, height=self.c_height)
         #self.move(self.oval, dx, dy)
+        #parent.update_idletasks()
         parent.after(delay, self.move_to, parent, posx, posy, delay)
+
+    def move_to_non_recursive(self, parent, posx, posy, delay, step=1):
+        # x1 = self.coords_x
+        # x2 = self.coords_y
+        # (x1, y1, x2, y2) = self.coords(self.rect)
+        x1 = self.c_width
+        y1 = self.c_height
+        dx = 0
+        dy = 0
+        if posx == int(x1) and posy == int(y1):
+            return
+        if posx > x1:
+            dx = step
+        elif posx < x1:
+            dx = -step
+        if posy > y1:
+            dy = step
+        elif posy < y1:
+            dy = -step
+        #self.move(self.rect, dx, dy)
+        i = 0
+        while True:
+            if posx == int(self.c_width) and posy == int(self.c_height):
+                break
+            self.c_width += dx
+            self.c_height += dy
+            time.sleep(0.001)
+            self.config(width=self.c_width, height=self.c_height)
+            if (i+1) % 10 == 0:
+                parent.update()
+            i += 1
+        #self.move(self.oval, dx, dy)
+       
+        #parent.after(delay, self.move_to, parent, posx, posy, delay)
 
 def main():
     window = tk.Tk()
@@ -119,10 +157,10 @@ def main():
             btn.grid(row=i+2, column=j)
     canvas = CanvasBox(window, 0, 0, 80, 539, 1, 1)
     canvas.create_roundbox()
-    canvas.move_to(window, 0, 672, 1)
-    window.after(870, canvas.create_entries)
-    window.after(1870, canvas.destroy_entries)
-    window.after(1900, canvas.move_to, window, 0, 0, 1)
+    #canvas.move_to(window, 0, 672, 1)
+    #window.after(870, canvas.create_entries)
+    #window.after(1870, canvas.destroy_entries)
+    #window.after(1900, canvas.move_to, window, 0, 0, 1)
 
     search_label = LabelBox(canvas, 'Start typing...', width=539, height=40, style='G.TLabel')
     #search_label.grid(row=0, column=0, sticky="we", columnspan=3) 
@@ -131,10 +169,14 @@ def main():
     #rounded.grid(row=1, column=0, sticky="we", columnspan=3)
     rounded.place(x=0, y=40)
     
+    canvas.create_entries()
+
     def key(event):
         if search_label.emptyQuery and not search_label.labeltext == "":
             search_label.changeText("")
             search_label.emptyQuery = False
+            canvas.move_to_non_recursive(window, 539, 672, 1, step=1)
+            #window.after(870//2, canvas.create_entries)
         search_label.changeText(search_label.labeltext + str(event.char))
 
     def delete(event):
@@ -149,6 +191,8 @@ def main():
         if not search_label.emptyQuery and search_label.labeltext == "":
             search_label.changeText("Start typing...")
             search_label.emptyQuery = True
+            #canvas.destroy_entries()
+            canvas.move_to_non_recursive(window, 539, 80, 1, step=1)
 
     window.bind("<Key>", key)
     window.bind("<BackSpace>", delete)
