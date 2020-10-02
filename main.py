@@ -130,8 +130,11 @@ class CanvasBox(tk.Canvas):
             self.c_width += dx
             self.c_height += dy
             time.sleep(0.001)
-            self.config(width=self.c_width, height=self.c_height)
-            if (i+1) % 10 == 0:
+            try:
+                self.config(width=self.c_width, height=self.c_height)
+            except tk._tkinter.TclError:
+                break
+            if i % 10 == 0:
                 parent.update()
             i += 1
         #self.move(self.oval, dx, dy)
@@ -142,6 +145,7 @@ def main():
     window = tk.Tk()
     window.configure(background='#f0f0f0')
     window.geometry("540x672")
+    window.resizable(False, False)
     style = ttk.Style()
     style.configure('W.TButton', font=(25), foreground="#535353", background="white", relief='flat', highlightthickness=0)
     style.map('W.TButton', background=[('pressed', '#c3c3c3'), ('active', '#ececec')])
@@ -172,12 +176,16 @@ def main():
     canvas.create_entries()
 
     def key(event):
+        if not str.isalpha(str(event.char)):
+            return
         if search_label.emptyQuery and not search_label.labeltext == "":
             search_label.changeText("")
             search_label.emptyQuery = False
+            search_label.changeText(search_label.labeltext + str(event.char))
             canvas.move_to_non_recursive(window, 539, 672, 1, step=1)
             #window.after(870//2, canvas.create_entries)
-        search_label.changeText(search_label.labeltext + str(event.char))
+        else:
+            search_label.changeText(search_label.labeltext + str(event.char))
 
     def delete(event):
         text = search_label.labeltext
@@ -194,8 +202,12 @@ def main():
             #canvas.destroy_entries()
             canvas.move_to_non_recursive(window, 539, 80, 1, step=1)
 
+    def esc(event):
+        window.destroy()
+
     window.bind("<Key>", key)
     window.bind("<BackSpace>", delete)
+    window.bind("<Escape>", esc)
 
     window.mainloop()
 
