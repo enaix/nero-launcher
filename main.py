@@ -3,6 +3,7 @@ import tkinter.ttk as ttk
 from PIL import Image as Pil_image, ImageTk as Pil_imageTk
 import time
 import re
+import os
 
 #def on_press(key):
 
@@ -14,16 +15,26 @@ class AppButton(ttk.Frame):
         self._photo = Pil_imageTk.PhotoImage(img_raw)
         self.pack_propagate(0)
         self._btn = ttk.Button(self, text=text, image=self._photo, compound=compound, *args, **kwargs)
-        self._btn.pack(fill=tk.BOTH, expand=1, padx=1, pady=1)
+        self._btn.pack(fill=tk.BOTH, expand=1, padx=1, pady=1) 
+        def exec_launch():
+            self.launch()
+        self._btn.exec_launch = exec_launch
         #label = ttk.Label(self._btn, image=photo)
         #label.pack(side=tk.RIGHT)
-    
+
     def focus_on_btn(self):
         self.focus_set()
         self._btn.focus_set()
 
     def set_style(self, style):
         self._btn.configure(style=style)
+
+    def configure_btn(self):
+        pass
+
+    def launch(self):
+        #os.system("nohup " + "firefox")
+        os.system("nohup " + "firefox" + " > /dev/null")
 
 class SearchBox(ttk.Combobox):
     def __init__(self, parent, text="", style=None, height=None, width=None, *args, **kwargs):
@@ -204,6 +215,10 @@ def main():
     def unset_focus_color(event):
         event.widget.set_style('W.TButton')
 
+    def launch_app(event):
+        event.widget.exec_launch()
+        window.destroy()
+
     window.grid_rowconfigure(0, minsize=80)
     buttons = []
     for i in range(3):
@@ -215,6 +230,8 @@ def main():
             btn.grid(row=i+2, column=j)
             btn.bind("<FocusIn>", set_focus_color)
             btn.bind("<FocusOut>", unset_focus_color)
+            btn._btn.bind("<Button-1>", launch_app)
+            # btn._btn.bind("<Enter>", launch_app)
             buttons[i].append(btn)
     canvas = CanvasBox(window, 0, 0, 80, 539, 1, 1)
     canvas.create_roundbox()
@@ -299,6 +316,13 @@ def main():
                 fMgr.cur_focus_pos = ((increment(fMgr.cur_focus_pos[0])), fMgr.cur_focus_pos[1])
             buttons[fMgr.cur_focus_pos[0]][fMgr.cur_focus_pos[1]].focus_on_btn()
 
+    def launch_on_enter(event):
+        if canvas.dropdown:
+            canvas.buttons_list[fMgr.cur_drop_focus_pos].launch()
+        else:
+            buttons[fMgr.cur_focus_pos[0]][fMgr.cur_focus_pos[1]].launch()
+        window.destroy()
+
     window.bind("<Key>", key)
     window.bind("<BackSpace>", delete)
     window.bind("<Escape>", esc)
@@ -306,6 +330,7 @@ def main():
     window.bind("<Down>", move_focus)
     window.bind("<Left>", move_focus)
     window.bind("<Right>", move_focus)
+    window.bind("<Return>", launch_on_enter)
     window.mainloop()
 
 if __name__ == "__main__":
