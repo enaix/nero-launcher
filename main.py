@@ -63,6 +63,7 @@ class CanvasBox(tk.Canvas):
         self.c_width = width
         self.c_height = height
 
+        self.dropdown = False
         self.moving = False
         self.change_direction = False
         self.new_direction = (0, 0)
@@ -81,6 +82,7 @@ class CanvasBox(tk.Canvas):
 
     def create_entries(self, focus_func, unfocus_func):
         self.buttons_list = []
+        self.entries_amount = 10
         for i in range(10):
             btn = AppButton(self, 'Chrome', f_style='L.TFrame', width=539, height=60, img_width=25, compound='left', style='W.TButton')
             btn.place(x=0, y=80+i*60)
@@ -177,6 +179,11 @@ class CanvasBox(tk.Canvas):
         self.moving = False
         #parent.after(delay, self.move_to, parent, posx, posy, delay)
 
+class FocusManager:
+    def __init__(self):
+        self.cur_focus_pos = (1, 1)
+        self.cur_drop_focus_pos = 0
+
 def main():
     window = tk.Tk()
     window.configure(background='#f0f0f0')
@@ -225,17 +232,19 @@ def main():
     
     canvas.create_entries(set_focus_color, unset_focus_color)
 
-    buttons[0][0].focus_on_btn()
+    # buttons[0][0].focus_on_btn()
     
-    is_special = re.compile(r'[\.@\-\+=\_!\#\$%\^&\*\(\)\<\>\?\\\/\|\}\{~\:`\[\]]')
+    is_special = re.compile(r'[\ \.@\-\+=\_!\#\$%\^&\*\(\)\<\>\?\\\/\|\}\{~\:`\[\]]')
 
     def key(event):
-        if not True in [str.isspace(str(event.char)), str.isalnum(str(event.char)), is_special.search(str(event.char)) is not None]:
+        if not True in [str.isalnum(str(event.char)), is_special.search(str(event.char)) is not None]:
             return
         if search_label.emptyQuery and not search_label.labeltext == "":
             search_label.changeText("")
             search_label.emptyQuery = False
             search_label.changeText(search_label.labeltext + str(event.char))
+            canvas.dropdown = True
+            canvas.buttons_list[0].focus_on_btn()
             canvas.move_to_non_recursive(window, 539, 672, 1, step=1, speed=5)
             #window.after(870//2, canvas.create_entries)
         else:
@@ -254,15 +263,49 @@ def main():
             search_label.changeText("Start typing...")
             search_label.emptyQuery = True
             #canvas.destroy_entries()
-            canvas.move_to_non_recursive(window, 539, 80, 1, step=1, speed=7)
+            canvas.dropdown = False
+            buttons[1][1].focus_on_btn()
+            canvas.move_to_non_recursive(window, 539, 80, 1, step=1, speed=7) 
 
     def esc(event):
         window.destroy()
+    
+    fMgr = FocusManager()
+    
+    def move_focus(event):
+        if event.keycode not in [111, 116, 113, 114]:
+            return
+        if canvas.dropdown:
+            if event.keycode == 111: # UP
+                fMgr.cur_drop_focus_pos -= 1
+                if fMgr.cur_drop_focus_pos < 0:
+                    fMgr.cur_drop_focus_pos = canvas.entries_amount - 1
+            elif event.keycode == 116: # DOWN
+                fMgr.cur_drop_focus_pos += 1
+                if fMgr.cur_drop_focus_pos >= canvas.entries_amount:
+                # move to the first elem
+                    fMgr.cur_drop_focus_pos = 0
+            canvas.buttons_list[fMgr.cur_drop_focus_pos].focus_on_btn()
+        else:
+            increment = lambda x: (x+1)%3
+            decrement = lambda x: (x+2)%3
+            if event.keycode == 113: # LEFT
+                fMgr.cur_focus_pos = (fMgr.cur_focus_pos[0], decrement(fMgr.cur_focus_pos[1]))
+            elif event.keycode == 114: # RIGHT
+                fMgr.cur_focus_pos = ((fMgr.cur_focus_pos[0], increment(fMgr.cur_focus_pos[1])))
+            elif event.keycode == 111: # UP
+                fMgr.cur_focus_pos = ((decrement(fMgr.cur_focus_pos[0])), fMgr.cur_focus_pos[1])
+            elif event.keycode == 116: # DOWN
+                fMgr.cur_focus_pos = ((increment(fMgr.cur_focus_pos[0])), fMgr.cur_focus_pos[1])
+            buttons[fMgr.cur_focus_pos[0]][fMgr.cur_focus_pos[1]].focus_on_btn()
 
     window.bind("<Key>", key)
     window.bind("<BackSpace>", delete)
     window.bind("<Escape>", esc)
-
+    window.bind("<Up>", move_focus)
+    window.bind("<Down>", move_focus)
+    window.bind("<Left>", move_focus)
+    window.bind("<Right>", move_focus)
     window.mainloop()
 
 if __name__ == "__main__":
