@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from PIL import Image as Pil_image, ImageTk as Pil_imageTk
 import time
+import re
 
 #def on_press(key):
 
@@ -225,9 +226,11 @@ def main():
     canvas.create_entries(set_focus_color, unset_focus_color)
 
     buttons[0][0].focus_on_btn()
+    
+    is_special = re.compile(r'[\.@\-\+=\_!\#\$%\^&\*\(\)\<\>\?\\\/\|\}\{~\:`\[\]]')
 
     def key(event):
-        if not str.isalpha(str(event.char)):
+        if not True in [str.isspace(str(event.char)), str.isalnum(str(event.char)), is_special.search(str(event.char)) is not None]:
             return
         if search_label.emptyQuery and not search_label.labeltext == "":
             search_label.changeText("")
