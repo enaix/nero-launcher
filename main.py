@@ -318,9 +318,9 @@ def main():
 
     def launch_on_enter(event):
         if canvas.dropdown:
-            canvas.buttons_list[fMgr.cur_drop_focus_pos].launch()
+            canvas.buttons_list[fMgr.cur_drop_focus_pos]._btn.exec_launch()
         else:
-            buttons[fMgr.cur_focus_pos[0]][fMgr.cur_focus_pos[1]].launch()
+            buttons[fMgr.cur_focus_pos[0]][fMgr.cur_focus_pos[1]]._btn.exec_launch()
         window.destroy()
 
     window.bind("<Key>", key)
