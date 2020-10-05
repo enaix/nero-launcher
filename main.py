@@ -4,9 +4,15 @@ from PIL import Image as Pil_image, ImageTk as Pil_imageTk
 import time
 import re
 import os
+import configparser
+import variables
 
 #def on_press(key):
 
+class Config():
+    def __init__(self):
+        self.parser = configparser.ConfigParser()
+        parser['DEFAULT'] = variables.EXPORT_CONFIG
 
 class AppButton(ttk.Frame):
     def __init__(self, parent, text="", f_style=None, height=None, width=None, img_width=100, compound='top', *args, **kwargs):
@@ -19,8 +25,6 @@ class AppButton(ttk.Frame):
         def exec_launch():
             self.launch()
         self._btn.exec_launch = exec_launch
-        #label = ttk.Label(self._btn, image=photo)
-        #label.pack(side=tk.RIGHT)
 
     def focus_on_btn(self):
         self.focus_set()
@@ -78,18 +82,9 @@ class CanvasBox(tk.Canvas):
         self.moving = False
         self.change_direction = False
         self.new_direction = (0, 0)
-        #img_raw = Pil_image.open("./rounded2.png")#.resize((i_width, i_height), Pil_image.ANTIALIAS)
-        #self._photo = Pil_imageTk.PhotoImage(img_raw)
-        #self.create_image(i_width, i_height, image=self._photo)
-        # self.rect = self.create_rectangle(0, 0, 539, 40, fill='white', outline='white')
-        # self.oval = self.create_oval(0, 20, 539, 60, fill='white', outline='white')
-        #self.create_rectangle(0, 0, width, height//2, fill='white')
-        #self.create_oval(width, height//2, width, height, fill='red')
     
     def create_roundbox(self):
         pass
-        #self.rect = self.create_rectangle(0, 0, 539, 80, fill='white', outline='white')
-        #self.oval = self.create_oval(0, 20, 539, 60, fill='white', outline='red')
 
     def create_entries(self, focus_func, unfocus_func):
         self.buttons_list = []
@@ -105,32 +100,6 @@ class CanvasBox(tk.Canvas):
         for i in self.buttons_list:
             i.destroy()
 
-    def move_to(self, parent, posx, posy, delay, step=1):
-        # x1 = self.coords_x
-        # x2 = self.coords_y
-        # (x1, y1, x2, y2) = self.coords(self.rect)
-        x1 = self.c_width
-        y1 = self.c_height
-        dx = 0
-        dy = 0
-        if posx == int(x1) and posy == int(y1):
-            return
-        if posx > x1:
-            dx = step
-        elif posx < x1:
-            dx = -step
-        if posy > y1:
-            dy = step
-        elif posy < y1:
-            dy = -step
-        #self.move(self.rect, dx, dy)
-        self.c_width += dx
-        self.c_height += dy
-        self.config(width=self.c_width, height=self.c_height)
-        #self.move(self.oval, dx, dy)
-        #parent.update_idletasks()
-        parent.after(delay, self.move_to, parent, posx, posy, delay)
-
     def get_delta(self, curx, cury, posx, posy, step):
         dx = 0
         dy = 0
@@ -145,9 +114,6 @@ class CanvasBox(tk.Canvas):
         return dx, dy
 
     def move_to_non_recursive(self, parent, posx, posy, delay, step=1, speed=1, frame_skip=10):
-        # x1 = self.coords_x
-        # x2 = self.coords_y
-        # (x1, y1, x2, y2) = self.coords(self.rect)
         if self.moving:
             self.change_direction = True
             self.new_direction = (posx, posy)
@@ -160,7 +126,6 @@ class CanvasBox(tk.Canvas):
         if posx == int(x1) and posy == int(y1):
             return
         (dx, dy) = self.get_delta(x1, y1, posx, posy, step)
-        #self.move(self.rect, dx, dy)
         
         if speed < 1:
             speed = 1
@@ -186,9 +151,7 @@ class CanvasBox(tk.Canvas):
             if i % frame_skip == 0:
                 parent.update()
             i += 1
-        #self.move(self.oval, dx, dy)
         self.moving = False
-        #parent.after(delay, self.move_to, parent, posx, posy, delay)
 
 class FocusManager:
     def __init__(self):
@@ -207,7 +170,6 @@ def main():
     style.map('WF.TButton', background=[('pressed', '#b3b3b3'), ('active', '#c1c1c1')])
     style.configure('L.TFrame', background="#e7e7e7")
     style.configure('G.TLabel', foreground="#535353", font=(25))
-    # animBox.move_to(window, 0, 700, 5)
 
     def set_focus_color(event):
         event.widget.set_style('WF.TButton')
@@ -224,33 +186,22 @@ def main():
     for i in range(3):
         buttons.append([])
         for j in range(3):
-            #btn1 = ttk.Button(window, text='Chrome', style='W.TButton')
-            #btn1.grid(row=i+1, column=j+1)
             btn = AppButton(window, 'Chrome', f_style='L.TFrame', width=180, height=200, style='W.TButton')
             btn.grid(row=i+2, column=j)
             btn.bind("<FocusIn>", set_focus_color)
             btn.bind("<FocusOut>", unset_focus_color)
             btn._btn.bind("<Button-1>", launch_app)
-            # btn._btn.bind("<Enter>", launch_app)
             buttons[i].append(btn)
     canvas = CanvasBox(window, 0, 0, 80, 539, 1, 1)
     canvas.create_roundbox()
-    #canvas.move_to(window, 0, 672, 1)
-    #window.after(870, canvas.create_entries)
-    #window.after(1870, canvas.destroy_entries)
-    #window.after(1900, canvas.move_to, window, 0, 0, 1)
 
     search_label = LabelBox(canvas, 'Start typing...', width=539, height=40, style='G.TLabel')
-    #search_label.grid(row=0, column=0, sticky="we", columnspan=3) 
     search_label.place(x=0, y=0)
     rounded = RoundBox(canvas, 40, 539)
-    #rounded.grid(row=1, column=0, sticky="we", columnspan=3)
     rounded.place(x=0, y=40)
     
     canvas.create_entries(set_focus_color, unset_focus_color)
 
-    # buttons[0][0].focus_on_btn()
-    
     is_special = re.compile(r'[\ \.@\-\+=\_!\#\$%\^&\*\(\)\<\>\?\\\/\|\}\{~\:`\[\]]')
 
     def key(event):
@@ -263,7 +214,6 @@ def main():
             canvas.dropdown = True
             canvas.buttons_list[0].focus_on_btn()
             canvas.move_to_non_recursive(window, 539, 672, 1, step=1, speed=5)
-            #window.after(870//2, canvas.create_entries)
         else:
             search_label.changeText(search_label.labeltext + str(event.char))
 
@@ -279,7 +229,6 @@ def main():
         if not search_label.emptyQuery and search_label.labeltext == "":
             search_label.changeText("Start typing...")
             search_label.emptyQuery = True
-            #canvas.destroy_entries()
             canvas.dropdown = False
             buttons[1][1].focus_on_btn()
             canvas.move_to_non_recursive(window, 539, 80, 1, step=1, speed=7) 
