@@ -20,13 +20,13 @@ class Config():
 config = Config()
 
 class AppButton(ttk.Frame):
-    def __init__(self, parent, text="", f_style=None, height=None, width=None, img_width=100, compound='top', *args, **kwargs):
+    def __init__(self, parent, text="", f_style=None, height=None, width=None, img_width=config.parser['ButtonImageSize'], compound='top', *args, **kwargs):
         ttk.Frame.__init__(self, parent, height=height, width=width, style=f_style)
         img_raw = Pil_image.open("/usr/share/icons/hicolor/128x128/apps/firefox-esr.png").resize((img_width, img_width), Pil_image.ANTIALIAS)
         self._photo = Pil_imageTk.PhotoImage(img_raw)
         self.pack_propagate(0)
         self._btn = ttk.Button(self, text=text, image=self._photo, compound=compound, *args, **kwargs)
-        self._btn.pack(fill=tk.BOTH, expand=1, padx=1, pady=1) 
+        self._btn.pack(fill=tk.BOTH, expand=1, padx=config.parser['ButtonFramePaddingX'], pady=config.parser['ButtonFramePaddingY']) 
         def exec_launch():
             self.launch()
         self._btn.exec_launch = exec_launch
@@ -42,7 +42,6 @@ class AppButton(ttk.Frame):
         pass
 
     def launch(self):
-        #os.system("nohup " + "firefox")
         os.system("nohup " + "firefox" + " > /dev/null")
 
 class SearchBox(ttk.Combobox):
@@ -56,29 +55,29 @@ class LabelBox(ttk.Frame):
         self.labeltext = text
         self.emptyQuery = True
         self._label = ttk.Label(self, text=self.labeltext, style=style, justify=tk.CENTER)
-        img_raw = Pil_image.open("./search.png").resize((25, 25), Pil_image.ANTIALIAS)
+        img_raw = Pil_image.open(config.parser['SearchLabelIconPath']).resize((config.parser['SearchLabelIconSize'], config.parser['SearchLabelIconSize']), Pil_image.ANTIALIAS)
         self._photo = Pil_imageTk.PhotoImage(img_raw)
         self._photoLabel = ttk.Label(self, image=self._photo, justify=tk.LEFT, *args, **kwargs)
         self.pack_propagate(0)
-        self._photoLabel.pack(side=tk.LEFT, padx=30, pady=5)
-        self._label.pack(side=tk.LEFT, padx=130, pady=5)
+        self._photoLabel.pack(side=tk.LEFT, padx=config.parser['SearchLabelIconPaddingX'], pady=config.parser['SearchLabelIconPaddingY'])
+        self._label.pack(side=tk.LEFT, padx=config.parser['SearchLabelInputPaddingX'], pady=config.parser['SearchLabelInputPaddingY'])
 
     def changeText(self, text):
         self.labeltext = text
-        if len(text) >= 17:
-            text = str(text[::-1][:17] + '..')[::-1]
+        if len(text) >= config.parser['SearchLabelInputTruncate']:
+            text = str(text[::-1][:config.parser['SearchLabelInputTruncate']] + '..')[::-1]
         self._label.configure(text=text)
 
 class RoundBox(ttk.Label):
     def __init__(self, parent, height=None, width=None, style=None, *args, **kwargs):
-        img_raw = Pil_image.open("./rounded.png").resize((width, height), Pil_image.ANTIALIAS)
+        img_raw = Pil_image.open(config.parser['RoundBoxPath']).resize((width, height), Pil_image.ANTIALIAS)
         self._photo = Pil_imageTk.PhotoImage(img_raw)
         ttk.Label.__init__(self, parent, image=self._photo, *args, **kwargs)
         self.pack_propagate(0)
 
 class CanvasBox(tk.Canvas):
     def __init__(self, parent, posx, posy, height, width):
-        tk.Canvas.__init__(self, parent, width=width, height=height, bg='white')
+        tk.Canvas.__init__(self, parent, width=width, height=height, bg=config.parser['CanvasBackgroundColor'])
         self.place(x=posx, y=posy)
         self.c_width = width
         self.c_height = height
@@ -95,8 +94,8 @@ class CanvasBox(tk.Canvas):
         self.buttons_list = []
         self.entries_amount = 10
         for i in range(10):
-            btn = AppButton(self, 'Chrome', f_style='L.TFrame', width=539, height=60, img_width=25, compound='left', style='W.TButton')
-            btn.place(x=0, y=80+i*60)
+            btn = AppButton(self, 'Chrome', f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], compound='left', style='W.TButton')
+            btn.place(x=0, y=config.top_panel_height+i*config.parser['DropdownButtonHeight'])
             btn.bind("<FocusIn>", focus_func)
             btn.bind("<FocusOut>", unfocus_func)
             self.buttons_list.append(btn)
@@ -281,10 +280,6 @@ def main():
     window.bind("<Key>", lambda event:[move_focus(event), key(event)])
     window.bind("<BackSpace>", delete)
     window.bind("<Escape>", esc)
-#    window.bind("<Up>", move_focus)
-#    window.bind("<Down>", move_focus)
-#    window.bind("<Left>", move_focus)
-#    window.bind("<Right>", move_focus)
     window.bind("<Return>", launch_on_enter)
     window.mainloop()
 
