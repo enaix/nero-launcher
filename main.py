@@ -272,13 +272,13 @@ def main():
             buttons[fMgr.cur_focus_pos[0]][fMgr.cur_focus_pos[1]]._btn.exec_launch()
         window.destroy()
 
-    window.bind("<Key>", key)
+    window.bind("<Key>", lambda event:[move_focus(event), key(event)])
     window.bind("<BackSpace>", delete)
     window.bind("<Escape>", esc)
-    window.bind("<Up>", move_focus)
-    window.bind("<Down>", move_focus)
-    window.bind("<Left>", move_focus)
-    window.bind("<Right>", move_focus)
+#    window.bind("<Up>", move_focus)
+#    window.bind("<Down>", move_focus)
+#    window.bind("<Left>", move_focus)
+#    window.bind("<Right>", move_focus)
     window.bind("<Return>", launch_on_enter)
     window.mainloop()
 
