@@ -12,7 +12,12 @@ import variables
 class Config():
     def __init__(self):
         self.parser = configparser.ConfigParser()
-        parser['DEFAULT'] = variables.EXPORT_CONFIG
+        self.parser = variables.EXPORT_CONFIG
+        self.width = self.parser['ButtonWidth']*3
+        self.height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight'] + self.parser['ButtonHeight']*3
+        self.top_panel_height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight']
+
+config = Config()
 
 class AppButton(ttk.Frame):
     def __init__(self, parent, text="", f_style=None, height=None, width=None, img_width=100, compound='top', *args, **kwargs):
@@ -72,7 +77,7 @@ class RoundBox(ttk.Label):
         self.pack_propagate(0)
 
 class CanvasBox(tk.Canvas):
-    def __init__(self, parent, posx, posy, height, width, i_height, i_width):
+    def __init__(self, parent, posx, posy, height, width):
         tk.Canvas.__init__(self, parent, width=width, height=height, bg='white')
         self.place(x=posx, y=posy)
         self.c_width = width
@@ -160,16 +165,16 @@ class FocusManager:
 
 def main():
     window = tk.Tk()
-    window.configure(background='#f0f0f0')
-    window.geometry("540x672")
+    window.configure(background=config.parser['WindowBackground'])
+    window.geometry(str(config.width) + "x" + str(config.height))
     window.resizable(False, False)
     style = ttk.Style()
-    style.configure('W.TButton', font=(25), foreground="#535353", background="white", relief='flat', highlightthickness=0)
-    style.map('W.TButton', background=[('pressed', '#c3c3c3'), ('active', '#ececec')])
-    style.configure('WF.TButton', font=(25), foreground="#535353", background="#c1c1c1", relief='flat', highlightthickness=0)
-    style.map('WF.TButton', background=[('pressed', '#b3b3b3'), ('active', '#c1c1c1')])
-    style.configure('L.TFrame', background="#e7e7e7")
-    style.configure('G.TLabel', foreground="#535353", font=(25))
+    style.configure('W.TButton', font=(config.parser['ButtonFontSize']), foreground=config.parser['ButtonForegroundColor'], background=config.parser['ButtonBackgroundColor'], relief='flat', highlightthickness=0)
+    style.map('W.TButton', background=[('pressed', config.parser['ButtonPressedBackgroundColor']), ('active', config.parser['ButtonActiveBackgroundColor'])])
+    style.configure('WF.TButton', font=(config.parser['ButtonFontSize']), foreground=config.parser['FocusedButtonForegroundColor'], background=config.parser['FocusedButtonBackgroundColor'], relief='flat', highlightthickness=0)
+    style.map('WF.TButton', background=[('pressed', config.parser['FocusedButtonPressedForegroundColor']), ('active', config.parser['FocusedButtonActiveForegroundColor'])])
+    style.configure('L.TFrame', background=config.parser['ButtonFrameBorderColor'])
+    style.configure('G.TLabel', foreground=config.parser['SearchLabelForegroundColor'], font=(config.parser['SearchLabelFontSize']))
 
     def set_focus_color(event):
         event.widget.set_style('WF.TButton')
@@ -181,24 +186,25 @@ def main():
         event.widget.exec_launch()
         window.destroy()
 
-    window.grid_rowconfigure(0, minsize=80)
+    window.grid_rowconfigure(0, minsize=config.top_panel_height)
     buttons = []
     for i in range(3):
         buttons.append([])
         for j in range(3):
-            btn = AppButton(window, 'Chrome', f_style='L.TFrame', width=180, height=200, style='W.TButton')
+            btn = AppButton(window, 'Chrome', f_style='L.TFrame', width=config.parser['ButtonWidth'], height=config.parser['ButtonHeight'], style='W.TButton')
             btn.grid(row=i+2, column=j)
             btn.bind("<FocusIn>", set_focus_color)
             btn.bind("<FocusOut>", unset_focus_color)
             btn._btn.bind("<Button-1>", launch_app)
             buttons[i].append(btn)
-    canvas = CanvasBox(window, 0, 0, 80, 539, 1, 1)
+
+    canvas = CanvasBox(window, 0, 0, config.top_panel_height, config.width)
     canvas.create_roundbox()
 
-    search_label = LabelBox(canvas, 'Start typing...', width=539, height=40, style='G.TLabel')
+    search_label = LabelBox(canvas, 'Start typing...', width=config.width, height=config.parser['SearchLabelHeight'], style='G.TLabel')
     search_label.place(x=0, y=0)
-    rounded = RoundBox(canvas, 40, 539)
-    rounded.place(x=0, y=40)
+    rounded = RoundBox(canvas, config.parser['RoundBoxHeight'], config.width)
+    rounded.place(x=0, y=config.parser['SearchLabelHeight'])
     
     canvas.create_entries(set_focus_color, unset_focus_color)
 
@@ -213,7 +219,7 @@ def main():
             search_label.changeText(search_label.labeltext + str(event.char))
             canvas.dropdown = True
             canvas.buttons_list[0].focus_on_btn()
-            canvas.move_to_non_recursive(window, 539, 672, 1, step=1, speed=5)
+            canvas.move_to_non_recursive(window, config.width, config.height, 1, step=1, speed=config.parser['CanvasDropdownSpeed'], frame_skip=config.parser['CanvasDropdownFrameSkip'])
         else:
             search_label.changeText(search_label.labeltext + str(event.char))
 
@@ -231,7 +237,7 @@ def main():
             search_label.emptyQuery = True
             canvas.dropdown = False
             buttons[1][1].focus_on_btn()
-            canvas.move_to_non_recursive(window, 539, 80, 1, step=1, speed=7) 
+            canvas.move_to_non_recursive(window, config.width, config.top_panel_height, 1, step=1, speed=config.parser['CanvasDropdownReturnSpeed'], frame_skip=config.parser['CanvasDropdownReturnFrameSkip'])
 
     def esc(event):
         window.destroy()
@@ -239,14 +245,14 @@ def main():
     fMgr = FocusManager()
     
     def move_focus(event):
-        if event.keycode not in [111, 116, 113, 114]:
+        if event.keycode not in [*config.parser['ButtonKeyUp'], *config.parser['ButtonKeyDown'], *config.parser['ButtonKeyLeft'], *config.parser['ButtonKeyRight']]:
             return
         if canvas.dropdown:
-            if event.keycode == 111: # UP
+            if event.keycode in config.parser['ButtonKeyUp']: # UP
                 fMgr.cur_drop_focus_pos -= 1
                 if fMgr.cur_drop_focus_pos < 0:
                     fMgr.cur_drop_focus_pos = canvas.entries_amount - 1
-            elif event.keycode == 116: # DOWN
+            elif event.keycode in config.parser['ButtonKeyDown']: # DOWN
                 fMgr.cur_drop_focus_pos += 1
                 if fMgr.cur_drop_focus_pos >= canvas.entries_amount:
                 # move to the first elem
@@ -255,13 +261,13 @@ def main():
         else:
             increment = lambda x: (x+1)%3
             decrement = lambda x: (x+2)%3
-            if event.keycode == 113: # LEFT
+            if event.keycode in config.parser['ButtonKeyLeft']: # LEFT
                 fMgr.cur_focus_pos = (fMgr.cur_focus_pos[0], decrement(fMgr.cur_focus_pos[1]))
-            elif event.keycode == 114: # RIGHT
+            elif event.keycode in config.parser['ButtonKeyRight']: # RIGHT
                 fMgr.cur_focus_pos = ((fMgr.cur_focus_pos[0], increment(fMgr.cur_focus_pos[1])))
-            elif event.keycode == 111: # UP
+            elif event.keycode in config.parser['ButtonKeyUp']: # UP
                 fMgr.cur_focus_pos = ((decrement(fMgr.cur_focus_pos[0])), fMgr.cur_focus_pos[1])
-            elif event.keycode == 116: # DOWN
+            elif event.keycode in config.parser['ButtonKeyDown']: # DOWN
                 fMgr.cur_focus_pos = ((increment(fMgr.cur_focus_pos[0])), fMgr.cur_focus_pos[1])
             buttons[fMgr.cur_focus_pos[0]][fMgr.cur_focus_pos[1]].focus_on_btn()
 
