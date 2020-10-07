@@ -1,18 +1,26 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from PIL import Image as Pil_image, ImageTk as Pil_imageTk
+from importlib import import_module
 import time
 import re
 import os
-import configparser
+import argparse
 import variables
 
 #def on_press(key):
 
 class Config():
     def __init__(self):
-        self.parser = configparser.ConfigParser()
         self.parser = variables.EXPORT_CONFIG
+        
+        argparser = argparse.ArgumentParser("launcher")
+        argparser.add_argument("-c", "--config", help="Path to the configuration file")
+        args = argparser.parse_args()
+        if args.config != None:
+            self.custom_settings = import_module(args.config)
+            self.parser = {**self.parser, **self.custom_settings.CONFIG}
+        
         self.width = self.parser['ButtonWidth'] * self.parser['ButtonsAmountX']
         self.height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight'] + self.parser['ButtonHeight'] * self.parser['ButtonsAmountY']
         self.top_panel_height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight']
