@@ -13,8 +13,8 @@ class Config():
     def __init__(self):
         self.parser = configparser.ConfigParser()
         self.parser = variables.EXPORT_CONFIG
-        self.width = self.parser['ButtonWidth']*3
-        self.height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight'] + self.parser['ButtonHeight']*3
+        self.width = self.parser['ButtonWidth'] * self.parser['ButtonsAmountX']
+        self.height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight'] + self.parser['ButtonHeight'] * self.parser['ButtonsAmountY']
         self.top_panel_height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight']
 
 config = Config()
@@ -92,8 +92,8 @@ class CanvasBox(tk.Canvas):
 
     def create_entries(self, focus_func, unfocus_func):
         self.buttons_list = []
-        self.entries_amount = 10
-        for i in range(10):
+        self.entries_amount = config.parser['CanvasEntriesAmount']
+        for i in range(self.entries_amount):
             btn = AppButton(self, 'Chrome', f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], compound='left', style='W.TButton')
             btn.place(x=0, y=config.top_panel_height+i*config.parser['DropdownButtonHeight'])
             btn.bind("<FocusIn>", focus_func)
@@ -159,7 +159,7 @@ class CanvasBox(tk.Canvas):
 
 class FocusManager:
     def __init__(self):
-        self.cur_focus_pos = (1, 1)
+        self.cur_focus_pos = (config.parser['ButtonsAmountX']//2, config.parser['ButtonsAmountY']//2)
         self.cur_drop_focus_pos = 0
 
 def main():
@@ -187,9 +187,9 @@ def main():
 
     window.grid_rowconfigure(0, minsize=config.top_panel_height)
     buttons = []
-    for i in range(3):
+    for i in range(config.parser['ButtonsAmountY']):
         buttons.append([])
-        for j in range(3):
+        for j in range(config.parser['ButtonsAmountX']):
             btn = AppButton(window, 'Chrome', f_style='L.TFrame', width=config.parser['ButtonWidth'], height=config.parser['ButtonHeight'], style='W.TButton')
             btn.grid(row=i+2, column=j)
             btn.bind("<FocusIn>", set_focus_color)
@@ -235,7 +235,7 @@ def main():
             search_label.changeText("Start typing...")
             search_label.emptyQuery = True
             canvas.dropdown = False
-            buttons[1][1].focus_on_btn()
+            buttons[config.parser['ButtonsAmountX']//2][config.parser['ButtonsAmountY']//2].focus_on_btn()
             canvas.move_to_non_recursive(window, config.width, config.top_panel_height, 1, step=1, speed=config.parser['CanvasDropdownReturnSpeed'], frame_skip=config.parser['CanvasDropdownReturnFrameSkip'])
 
     def esc(event):
@@ -258,16 +258,16 @@ def main():
                     fMgr.cur_drop_focus_pos = 0
             canvas.buttons_list[fMgr.cur_drop_focus_pos].focus_on_btn()
         else:
-            increment = lambda x: (x+1)%3
-            decrement = lambda x: (x+2)%3
+            increment = lambda x,v: (x+1)%config.parser['ButtonsAmount'+v]
+            decrement = lambda x,v: (x+config.parser['ButtonsAmount'+v]-1)%config.parser['ButtonsAmount'+v]
             if event.keycode in config.parser['ButtonKeyLeft']: # LEFT
-                fMgr.cur_focus_pos = (fMgr.cur_focus_pos[0], decrement(fMgr.cur_focus_pos[1]))
+                fMgr.cur_focus_pos = (fMgr.cur_focus_pos[0], decrement(fMgr.cur_focus_pos[1], 'X'))
             elif event.keycode in config.parser['ButtonKeyRight']: # RIGHT
-                fMgr.cur_focus_pos = ((fMgr.cur_focus_pos[0], increment(fMgr.cur_focus_pos[1])))
+                fMgr.cur_focus_pos = ((fMgr.cur_focus_pos[0], increment(fMgr.cur_focus_pos[1], 'X')))
             elif event.keycode in config.parser['ButtonKeyUp']: # UP
-                fMgr.cur_focus_pos = ((decrement(fMgr.cur_focus_pos[0])), fMgr.cur_focus_pos[1])
+                fMgr.cur_focus_pos = ((decrement(fMgr.cur_focus_pos[0], 'Y')), fMgr.cur_focus_pos[1])
             elif event.keycode in config.parser['ButtonKeyDown']: # DOWN
-                fMgr.cur_focus_pos = ((increment(fMgr.cur_focus_pos[0])), fMgr.cur_focus_pos[1])
+                fMgr.cur_focus_pos = ((increment(fMgr.cur_focus_pos[0], 'Y')), fMgr.cur_focus_pos[1])
             buttons[fMgr.cur_focus_pos[0]][fMgr.cur_focus_pos[1]].focus_on_btn()
 
     def launch_on_enter(event):

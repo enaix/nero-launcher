@@ -2,6 +2,8 @@ EXPORT_CONFIG = {
     'WindowBackground': '#f0f0f0',
     'ButtonWidth': 180,
     'ButtonHeight': 200,
+    'ButtonsAmountX': 3,
+    'ButtonsAmountY': 3,
     'ButtonFontSize': 25,
     'ButtonImageSize': 100,
     'ButtonForegroundColor': '#535353',
