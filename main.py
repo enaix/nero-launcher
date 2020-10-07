@@ -92,7 +92,7 @@ class CanvasBox(tk.Canvas):
 
     def create_entries(self, focus_func, unfocus_func):
         self.buttons_list = []
-        self.entries_amount = config.parser['CanvasEntriesAmount']
+        self.entries_amount = (config.height - config.top_panel_height)//config.parser['DropdownButtonHeight']
         for i in range(self.entries_amount):
             btn = AppButton(self, 'Chrome', f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], compound='left', style='W.TButton')
             btn.place(x=0, y=config.top_panel_height+i*config.parser['DropdownButtonHeight'])
