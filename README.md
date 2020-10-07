@@ -1,2 +1,3 @@
-# pi-launcher
-Simple app launcher designed for Raspberry PI TVs
+# * nero
+
+Simple app launcher with tiles
