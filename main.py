@@ -5,6 +5,7 @@ from importlib import import_module
 import time
 import re
 import os
+import configparser
 import argparse
 import variables
 
@@ -14,16 +15,45 @@ class Config():
     def __init__(self):
         self.parser = variables.EXPORT_CONFIG
         
-        argparser = argparse.ArgumentParser("launcher")
-        argparser.add_argument("-c", "--config", help="Path to the configuration file")
-        args = argparser.parse_args()
-        if args.config != None:
-            self.custom_settings = import_module(args.config)
+        self.argparser = argparse.ArgumentParser("nero-launcher")
+        self.argparser.add_argument("-c", "--config", help="Path to the configuration file")
+        self.args = self.argparser.parse_args()
+        if self.args.config != None:
+            self.custom_settings = import_module(self.args.config)
             self.parser = {**self.parser, **self.custom_settings.CONFIG}
         
         self.width = self.parser['ButtonWidth'] * self.parser['ButtonsAmountX']
         self.height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight'] + self.parser['ButtonHeight'] * self.parser['ButtonsAmountY']
         self.top_panel_height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight']
+
+        self.apps = {}
+        self.scanFolder('/usr/share/applications')
+
+    def scanFolder(self, path):
+        files = os.listdir(path=path)
+        for i in files:
+            self.apps = {**self.apps, **self.scanApp(path + '/' + i)}
+
+    def getIconPath(self, icon):
+        for folder in self.parser['IconFolders']:
+            for theme in self.parser['IconThemes']:
+                for res in self.parser['IconResolutions']:
+                    for ext in self.parser['IconFormats']:
+                        print(folder + '/' + theme + '/' + res + '/apps/' + icon + '.' + ext)
+                        if os.path.isfile(folder + '/' + theme + '/' + res + '/apps/' + icon + '.' + ext):
+                            return folder + '/' + theme + '/' + res + '/apps/' + icon + '.' + ext
+
+    def scanApp(self, path):
+        conf = configparser.ConfigParser(interpolation=None)
+        conf.read(path)
+        res = {}
+        res['Name'] = conf['Desktop Entry']['Name']
+        res['Exec'] = conf['Desktop Entry']['Exec']
+        res['Icon'] = conf['Desktop Entry']['Icon']
+
+        res['IconPath'] = self.getIconPath(res['Icon'])
+
+        return res
 
 config = Config()
 
@@ -175,6 +205,10 @@ def main():
     window.configure(background=config.parser['WindowBackground'])
     window.geometry(str(config.width) + "x" + str(config.height))
     window.resizable(False, False)
+    window.title('nero')
+    #window.iconphoto(False, tk.PhotoImage(file='./logo_white.png'))
+    window.tk.call('wm', 'iconphoto', window._w, tk.PhotoImage(file='./logo_white.ico'))
+
     style = ttk.Style()
     style.configure('W.TButton', font=(config.parser['ButtonFontSize']), foreground=config.parser['ButtonForegroundColor'], background=config.parser['ButtonBackgroundColor'], relief='flat', highlightthickness=0)
     style.map('W.TButton', background=[('pressed', config.parser['ButtonPressedBackgroundColor']), ('active', config.parser['ButtonActiveBackgroundColor'])])
