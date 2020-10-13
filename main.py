@@ -26,45 +26,52 @@ class Config():
         self.height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight'] + self.parser['ButtonHeight'] * self.parser['ButtonsAmountY']
         self.top_panel_height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight']
 
-        self.apps = {}
+        self.apps = []
         self.scanFolder('/usr/share/applications')
 
     def scanFolder(self, path):
         files = os.listdir(path=path)
         for i in files:
-            self.apps = {**self.apps, **self.scanApp(path + '/' + i)}
+            if i.split('.')[::-1][0] == 'desktop':
+                self.apps.append(self.scanApp(path + '/' + i))
 
     def getIconPath(self, icon):
         for folder in self.parser['IconFolders']:
             for theme in self.parser['IconThemes']:
                 for res in self.parser['IconResolutions']:
                     for ext in self.parser['IconFormats']:
-                        print(folder + '/' + theme + '/' + res + '/apps/' + icon + '.' + ext)
+                        # print(folder + '/' + theme + '/' + res + '/apps/' + icon + '.' + ext)
                         if os.path.isfile(folder + '/' + theme + '/' + res + '/apps/' + icon + '.' + ext):
                             return folder + '/' + theme + '/' + res + '/apps/' + icon + '.' + ext
 
     def scanApp(self, path):
         conf = configparser.ConfigParser(interpolation=None)
         conf.read(path)
-        res = {}
-        res['Name'] = conf['Desktop Entry']['Name']
-        res['Exec'] = conf['Desktop Entry']['Exec']
-        res['Icon'] = conf['Desktop Entry']['Icon']
-
-        res['IconPath'] = self.getIconPath(res['Icon'])
-
+        res = {'Name': None, 'Exec': None, 'Icon': None, 'IconPath': None}
+        if 'Name' in conf['Desktop Entry']:
+            res['Name'] = conf['Desktop Entry']['Name']
+        if 'Exec' in conf['Desktop Entry']:
+            res['Exec'] = conf['Desktop Entry']['Exec']
+        if 'Icon' in conf['Desktop Entry']:
+            res['Icon'] = conf['Desktop Entry']['Icon']
+            res['IconPath'] = self.getIconPath(res['Icon'])
+        print(res['IconPath'])
         return res
 
 config = Config()
 
 class AppButton(ttk.Frame):
-    def __init__(self, parent, text="", f_style=None, height=None, width=None, img_width=config.parser['ButtonImageSize'], compound='top', *args, **kwargs):
+    def __init__(self, parent, text="", f_style=None, height=None, width=None, img_width=config.parser['ButtonImageSize'], compound='top', image_path=None, *args, **kwargs):
         ttk.Frame.__init__(self, parent, height=height, width=width, style=f_style)
-        img_raw = Pil_image.open("/usr/share/icons/hicolor/128x128/apps/firefox-esr.png").resize((img_width, img_width), Pil_image.ANTIALIAS)
-        self._photo = Pil_imageTk.PhotoImage(img_raw)
+        if not image_path == None:
+            img_raw = Pil_image.open(image_path).resize((img_width, img_width), Pil_image.ANTIALIAS)
+            self._photo = Pil_imageTk.PhotoImage(img_raw)
+        else:
+            self._photo = None
         self.pack_propagate(0)
         self._btn = ttk.Button(self, text=text, image=self._photo, compound=compound, *args, **kwargs)
-        self._btn.pack(fill=tk.BOTH, expand=1, padx=config.parser['ButtonFramePaddingX'], pady=config.parser['ButtonFramePaddingY']) 
+        self._btn.pack(fill=tk.BOTH, expand=1, padx=config.parser['ButtonFramePaddingX'], pady=config.parser['ButtonFramePaddingY'])
+        self.exec_path = None
         def exec_launch():
             self.launch()
         self._btn.exec_launch = exec_launch
@@ -80,7 +87,7 @@ class AppButton(ttk.Frame):
         pass
 
     def launch(self):
-        os.system("nohup " + "firefox" + " > /dev/null")
+        os.system("nohup " + self.exec_path + " > /dev/null")
 
 class SearchBox(ttk.Combobox):
     def __init__(self, parent, text="", style=None, height=None, width=None, *args, **kwargs):
@@ -131,8 +138,11 @@ class CanvasBox(tk.Canvas):
     def create_entries(self, focus_func, unfocus_func):
         self.buttons_list = []
         self.entries_amount = (config.height - config.top_panel_height)//config.parser['DropdownButtonHeight']
+        self.sorted_elems = sorted(config.apps, key=lambda x: x['Name'])
         for i in range(self.entries_amount):
-            btn = AppButton(self, 'Chrome', f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], compound='left', style='W.TButton')
+            if i >= len(self.sorted_elems):
+                continue
+            btn = AppButton(self, self.sorted_elems[i]['Name'], f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], compound='left', style='W.TButton', image_path=self.sorted_elems[i]['IconPath'])
             btn.place(x=0, y=config.top_panel_height+i*config.parser['DropdownButtonHeight'])
             btn.bind("<FocusIn>", focus_func)
             btn.bind("<FocusOut>", unfocus_func)
@@ -207,7 +217,7 @@ def main():
     window.resizable(False, False)
     window.title('nero')
     #window.iconphoto(False, tk.PhotoImage(file='./logo_white.png'))
-    window.tk.call('wm', 'iconphoto', window._w, tk.PhotoImage(file='./logo_white.ico'))
+    # window.tk.call('wm', 'iconphoto', window._w, tk.PhotoImage(file='./logo_white.ico'))
 
     style = ttk.Style()
     style.configure('W.TButton', font=(config.parser['ButtonFontSize']), foreground=config.parser['ButtonForegroundColor'], background=config.parser['ButtonBackgroundColor'], relief='flat', highlightthickness=0)

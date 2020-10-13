@@ -1,3 +1,3 @@
 CONFIG = {
-        'ButtonFrameBorderColor': '#ffffff'        
+        #'ButtonFrameBorderColor': '#ffffff'        
 }

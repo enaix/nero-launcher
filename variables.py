@@ -3,7 +3,7 @@ EXPORT_CONFIG = {
     'ButtonWidth': 180,
     'ButtonHeight': 200,
     'ButtonsAmountX': 3,
-    'ButtonsAmountY': 4,
+    'ButtonsAmountY': 3,
     'ButtonFontSize': 25,
     'ButtonImageSize': 100,
     'ButtonForegroundColor': '#535353',
