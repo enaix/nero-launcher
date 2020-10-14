@@ -136,16 +136,41 @@ class CanvasBox(tk.Canvas):
         pass
 
     def create_entries(self, focus_func, unfocus_func):
+        self.focus_func = focus_func
+        self.unfocus_func = unfocus_func
         self.buttons_list = []
         self.entries_amount = (config.height - config.top_panel_height)//config.parser['DropdownButtonHeight']
         self.sorted_elems = sorted(config.apps, key=lambda x: x['Name'])
+        self.list_pos = 0
+        self.actual_entries_amount = self.entries_amount
+        if self.entries_amount + self.list_pos >= len(self.sorted_elems):
+            self.actual_entries_amount = len(self.sorted_elems) - self.list_pos
+        self.search_elems = self.sorted_elems[(self.list_pos//self.entries_amount)*self.entries_amount:(self.list_pos//self.entries_amount)*self.entries_amount + self.actual_entries_amount]
+        print(self.list_pos, len(self.search_elems))
         for i in range(self.entries_amount):
-            if i >= len(self.sorted_elems):
+            if i >= len(self.search_elems):
                 continue
-            btn = AppButton(self, self.sorted_elems[i]['Name'], f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], compound='left', style='W.TButton', image_path=self.sorted_elems[i]['IconPath'])
+            btn = AppButton(self, self.search_elems[i]['Name'], f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], compound='left', style='W.TButton', image_path=self.search_elems[i]['IconPath'])
             btn.place(x=0, y=config.top_panel_height+i*config.parser['DropdownButtonHeight'])
             btn.bind("<FocusIn>", focus_func)
             btn.bind("<FocusOut>", unfocus_func)
+            self.buttons_list.append(btn)
+
+    def redraw_entries(self):
+        self.destroy_entries()
+        self.buttons_list = []
+        self.actual_entries_amount = self.entries_amount
+        if self.entries_amount + self.list_pos >= len(self.sorted_elems):
+            self.actual_entries_amount = len(self.sorted_elems) - self.list_pos
+        self.search_elems = self.sorted_elems[(self.list_pos//self.entries_amount)*self.entries_amount:(self.list_pos//self.entries_amount)*self.entries_amount + self.actual_entries_amount]
+        print(self.list_pos, len(self.search_elems))
+        for i in range(self.entries_amount):
+            if i >= len(self.search_elems):
+                continue
+            btn = AppButton(self, self.search_elems[i]['Name'], f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], compound='left', style='W.TButton', image_path=self.search_elems[i]['IconPath'])
+            btn.place(x=0, y=config.top_panel_height+i*config.parser['DropdownButtonHeight'])
+            btn.bind("<FocusIn>", self.focus_func)
+            btn.bind("<FocusOut>", self.unfocus_func)
             self.buttons_list.append(btn)
 
     def destroy_entries(self):
@@ -301,14 +326,23 @@ def main():
         if canvas.dropdown:
             if event.keycode in config.parser['ButtonKeyUp']: # UP
                 fMgr.cur_drop_focus_pos -= 1
+                canvas.list_pos -= 1
                 if fMgr.cur_drop_focus_pos < 0:
-                    fMgr.cur_drop_focus_pos = canvas.entries_amount - 1
+                    fMgr.cur_drop_focus_pos = canvas.actual_entries_amount
+                if canvas.list_pos < 0:
+                    canvas.list_pos = len(canvas.sorted_elems) - 1
             elif event.keycode in config.parser['ButtonKeyDown']: # DOWN
                 fMgr.cur_drop_focus_pos += 1
-                if fMgr.cur_drop_focus_pos >= canvas.entries_amount:
+                canvas.list_pos += 1
+                if fMgr.cur_drop_focus_pos >= canvas.actual_entries_amount:
                 # move to the first elem
                     fMgr.cur_drop_focus_pos = 0
-            canvas.buttons_list[fMgr.cur_drop_focus_pos].focus_on_btn()
+                if canvas.list_pos >= len(canvas.sorted_elems):
+                    canvas.list_pos = 0
+            print(canvas.actual_entries_amount)
+            canvas.redraw_entries()
+            if canvas.actual_entries_amount > 0:
+                canvas.buttons_list[fMgr.cur_drop_focus_pos].focus_on_btn()
         else:
             increment = lambda x,v: (x+1)%config.parser['ButtonsAmount'+v]
             decrement = lambda x,v: (x+config.parser['ButtonsAmount'+v]-1)%config.parser['ButtonsAmount'+v]
