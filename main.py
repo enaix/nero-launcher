@@ -145,7 +145,7 @@ class CanvasBox(tk.Canvas):
         self.actual_entries_amount = self.entries_amount
         if self.entries_amount + (self.list_pos//self.entries_amount)*self.entries_amount > len(self.sorted_elems):
             #self.actual_entries_amount = len(self.sorted_elems) - self.list_pos
-            self.entries_amount = len(self.sorted_elems) - (self.list_pos//self.entries_amount)*self.entries_amount
+            self.actual_entries_amount = len(self.sorted_elems) - (self.list_pos//self.entries_amount)*self.entries_amount
         self.search_elems = self.sorted_elems[(self.list_pos//self.entries_amount)*self.entries_amount:(self.list_pos//self.entries_amount)*self.entries_amount + self.actual_entries_amount]
         print(self.list_pos, len(self.search_elems))
         for i in range(self.entries_amount):
@@ -163,7 +163,7 @@ class CanvasBox(tk.Canvas):
         self.actual_entries_amount = self.entries_amount
         if self.entries_amount + (self.list_pos//self.entries_amount)*self.entries_amount > len(self.sorted_elems):
             #self.actual_entries_amount = len(self.sorted_elems) - self.list_pos
-            self.entries_amount = len(self.sorted_elems) - (self.list_pos//self.entries_amount)*self.entries_amount
+            self.actual_entries_amount = len(self.sorted_elems) - (self.list_pos//self.entries_amount)*self.entries_amount
         self.search_elems = self.sorted_elems[(self.list_pos//self.entries_amount)*self.entries_amount:(self.list_pos//self.entries_amount)*self.entries_amount + self.actual_entries_amount]
         print(self.list_pos, len(self.search_elems))
         for i in range(self.entries_amount):
@@ -335,16 +335,16 @@ def main():
                 if fMgr.cur_drop_focus_pos < 0:
                     fMgr.cur_drop_focus_pos = canvas.actual_entries_amount - 1
             elif event.keycode in config.parser['ButtonKeyDown']: # DOWN
+                actual_entries = canvas.actual_entries_amount                
                 canvas.list_pos += 1
                 if canvas.list_pos >= len(canvas.sorted_elems):
                     canvas.list_pos = 0
                 canvas.redraw_entries()
                 fMgr.cur_drop_focus_pos += 1
-                if fMgr.cur_drop_focus_pos >= canvas.actual_entries_amount:
+                if fMgr.cur_drop_focus_pos >= actual_entries:
                 # move to the first elem
                     fMgr.cur_drop_focus_pos = 0
             print(canvas.actual_entries_amount, fMgr.cur_drop_focus_pos)
-            
             if canvas.actual_entries_amount > 0:
                 canvas.buttons_list[fMgr.cur_drop_focus_pos].focus_on_btn()
         else:
