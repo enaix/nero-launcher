@@ -72,6 +72,9 @@ class AppButton(ttk.Frame):
         self._btn = ttk.Button(self, text=text, image=self._photo, compound=compound, *args, **kwargs)
         self._btn.pack(fill=tk.BOTH, expand=1, padx=config.parser['ButtonFramePaddingX'], pady=config.parser['ButtonFramePaddingY'])
         self.exec_path = None
+        self.place_x = 0
+        self.place_y = 0
+        self.hidden = False
         def exec_launch():
             self.launch()
         self._btn.exec_launch = exec_launch
@@ -85,6 +88,16 @@ class AppButton(ttk.Frame):
 
     def configure_btn(self):
         pass
+
+    def hide(self):
+        if not self.hidden:
+            self._btn.place_forget()
+            self.hidden = True
+
+    def show(self):
+        if self.hidden:
+            self._btn.place(self.place_x, self.place_y)
+            self.hidden = False
 
     def launch(self):
         os.system("nohup " + self.exec_path + " > /dev/null")
@@ -126,6 +139,7 @@ class CanvasBox(tk.Canvas):
         self.place(x=posx, y=posy)
         self.c_width = width
         self.c_height = height
+        self.parent = parent
 
         self.dropdown = False
         self.moving = False
@@ -144,15 +158,22 @@ class CanvasBox(tk.Canvas):
         self.list_pos = 0
         self.actual_entries_amount = self.entries_amount
         if self.entries_amount + (self.list_pos//self.entries_amount)*self.entries_amount > len(self.sorted_elems):
-            #self.actual_entries_amount = len(self.sorted_elems) - self.list_pos
             self.actual_entries_amount = len(self.sorted_elems) - (self.list_pos//self.entries_amount)*self.entries_amount
         self.search_elems = self.sorted_elems[(self.list_pos//self.entries_amount)*self.entries_amount:(self.list_pos//self.entries_amount)*self.entries_amount + self.actual_entries_amount]
         print(self.list_pos, len(self.search_elems))
         for i in range(self.entries_amount):
             if i >= len(self.search_elems):
+                btn = AppButton(self, None, f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], compound='left', style='W.TButton', image_path=None)
+                btn.place_x = 0
+                btn.place_y = config.top_panel_height+i*config.parser['DropdownButtonHeight']
+                btn.bind("<FocusIn>", focus_func)
+                btn.bind("<FocusOut>", unfocus_func)
+                self.buttons_list.append(btn)
                 continue
             btn = AppButton(self, self.search_elems[i]['Name'], f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], compound='left', style='W.TButton', image_path=self.search_elems[i]['IconPath'])
             btn.place(x=0, y=config.top_panel_height+i*config.parser['DropdownButtonHeight'])
+            btn.place_x = 0
+            btn.place_y = config.top_panel_height+i*config.parser['DropdownButtonHeight']
             btn.bind("<FocusIn>", focus_func)
             btn.bind("<FocusOut>", unfocus_func)
             self.buttons_list.append(btn)
@@ -163,7 +184,6 @@ class CanvasBox(tk.Canvas):
             self.buttons_list = []
         self.actual_entries_amount = self.entries_amount
         if self.entries_amount + (self.list_pos//self.entries_amount)*self.entries_amount > len(self.sorted_elems):
-            #self.actual_entries_amount = len(self.sorted_elems) - self.list_pos
             self.actual_entries_amount = len(self.sorted_elems) - (self.list_pos//self.entries_amount)*self.entries_amount
         self.search_elems = self.sorted_elems[(self.list_pos//self.entries_amount)*self.entries_amount:(self.list_pos//self.entries_amount)*self.entries_amount + self.actual_entries_amount]
         print(self.list_pos, len(self.search_elems))
@@ -177,6 +197,19 @@ class CanvasBox(tk.Canvas):
             btn.bind("<FocusIn>", self.focus_func)
             btn.bind("<FocusOut>", self.unfocus_func)
             self.buttons_list.append(btn)
+            
+            #self.buttons_list[i]._photo = None
+            #if not self.search_elems[i]['IconPath'] == None:
+            #    img_raw = Pil_image.open(self.search_elems[i]['IconPath']).resize((config.parser['DropdownButtonIconSize'], config.parser['DropdownButtonIconSize']), Pil_image.ANTIALIAS)
+            #    self.buttons_list[i]._photo = Pil_imageTk.PhotoImage(img_raw, master=self.parent)
+            #print(self.search_elems[i]['IconPath'])
+            #self.buttons_list[i].show()
+            #self.buttons_list[i]._btn.config(text=self.search_elems[i]['Name'], image=self.buttons_list[i]._photo)
+            #btn = AppButton(self, self.search_elems[i]['Name'], f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], compound='left', style='W.TButton', image_path=self.search_elems[i]['IconPath'])
+            #btn.place(x=0, y=config.top_panel_height+i*config.parser['DropdownButtonHeight'])
+            #btn.bind("<FocusIn>", self.focus_func)
+            #btn.bind("<FocusOut>", self.unfocus_func)
+            #self.buttons_list.append(btn)
 
     def destroy_entries(self):
         for i in self.buttons_list:
@@ -333,10 +366,7 @@ def main():
                 canvas.list_pos -= 1
                 if canvas.list_pos < 0:
                     canvas.list_pos = len(canvas.sorted_elems) - 1
-                update = False
-                if fMgr.cur_drop_focus_pos - 1 < 0:
-                    update = True
-                canvas.redraw_entries(update)
+                canvas.redraw_entries()
                 fMgr.cur_drop_focus_pos -= 1
                 if fMgr.cur_drop_focus_pos < 0:
                     fMgr.cur_drop_focus_pos = canvas.actual_entries_amount - 1
@@ -345,10 +375,7 @@ def main():
                 canvas.list_pos += 1
                 if canvas.list_pos >= len(canvas.sorted_elems):
                     canvas.list_pos = 0
-                update = False
-                if fMgr.cur_drop_focus_pos + 1 >= actual_entries:
-                    update = True
-                canvas.redraw_entries(update)
+                canvas.redraw_entries()
                 fMgr.cur_drop_focus_pos += 1
                 if fMgr.cur_drop_focus_pos >= actual_entries:
                 # move to the first elem
