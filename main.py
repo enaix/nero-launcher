@@ -157,15 +157,18 @@ class CanvasBox(tk.Canvas):
             btn.bind("<FocusOut>", unfocus_func)
             self.buttons_list.append(btn)
 
-    def redraw_entries(self):
-        self.destroy_entries()
-        self.buttons_list = []
+    def redraw_entries(self, update=False):
+        if update:
+            self.destroy_entries()
+            self.buttons_list = []
         self.actual_entries_amount = self.entries_amount
         if self.entries_amount + (self.list_pos//self.entries_amount)*self.entries_amount > len(self.sorted_elems):
             #self.actual_entries_amount = len(self.sorted_elems) - self.list_pos
             self.actual_entries_amount = len(self.sorted_elems) - (self.list_pos//self.entries_amount)*self.entries_amount
         self.search_elems = self.sorted_elems[(self.list_pos//self.entries_amount)*self.entries_amount:(self.list_pos//self.entries_amount)*self.entries_amount + self.actual_entries_amount]
         print(self.list_pos, len(self.search_elems))
+        if not update:
+            return
         for i in range(self.entries_amount):
             if i >= len(self.search_elems):
                 continue
@@ -330,7 +333,10 @@ def main():
                 canvas.list_pos -= 1
                 if canvas.list_pos < 0:
                     canvas.list_pos = len(canvas.sorted_elems) - 1
-                canvas.redraw_entries()
+                update = False
+                if fMgr.cur_drop_focus_pos - 1 < 0:
+                    update = True
+                canvas.redraw_entries(update)
                 fMgr.cur_drop_focus_pos -= 1
                 if fMgr.cur_drop_focus_pos < 0:
                     fMgr.cur_drop_focus_pos = canvas.actual_entries_amount - 1
@@ -339,7 +345,10 @@ def main():
                 canvas.list_pos += 1
                 if canvas.list_pos >= len(canvas.sorted_elems):
                     canvas.list_pos = 0
-                canvas.redraw_entries()
+                update = False
+                if fMgr.cur_drop_focus_pos + 1 >= actual_entries:
+                    update = True
+                canvas.redraw_entries(update)
                 fMgr.cur_drop_focus_pos += 1
                 if fMgr.cur_drop_focus_pos >= actual_entries:
                 # move to the first elem
