@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from PIL import Image as Pil_image, ImageTk as Pil_imageTk
 from importlib import import_module
+from fuzzywuzzy import fuzz, process
 import time
 import re
 import os
@@ -40,7 +41,6 @@ class Config():
             for theme in self.parser['IconThemes']:
                 for res in self.parser['IconResolutions']:
                     for ext in self.parser['IconFormats']:
-                        # print(folder + '/' + theme + '/' + res + '/apps/' + icon + '.' + ext)
                         if os.path.isfile(folder + '/' + theme + '/' + res + '/apps/' + icon + '.' + ext):
                             return folder + '/' + theme + '/' + res + '/apps/' + icon + '.' + ext
 
@@ -55,7 +55,6 @@ class Config():
         if 'Icon' in conf['Desktop Entry']:
             res['Icon'] = conf['Desktop Entry']['Icon']
             res['IconPath'] = self.getIconPath(res['Icon'])
-        print(res['IconPath'])
         return res
 
 config = Config()
@@ -140,14 +139,13 @@ class CanvasBox(tk.Canvas):
         self.unfocus_func = unfocus_func
         self.buttons_list = []
         self.entries_amount = (config.height - config.top_panel_height)//config.parser['DropdownButtonHeight']
-        self.sorted_elems = sorted(config.apps, key=lambda x: x['Name'])
+        self.process_elems = sorted(config.apps, key=lambda x: x['Name'])
+        self.sorted_elems = self.process_elems
         self.list_pos = 0
         self.actual_entries_amount = self.entries_amount
         if self.entries_amount + (self.list_pos//self.entries_amount)*self.entries_amount > len(self.sorted_elems):
-            #self.actual_entries_amount = len(self.sorted_elems) - self.list_pos
             self.actual_entries_amount = len(self.sorted_elems) - (self.list_pos//self.entries_amount)*self.entries_amount
         self.search_elems = self.sorted_elems[(self.list_pos//self.entries_amount)*self.entries_amount:(self.list_pos//self.entries_amount)*self.entries_amount + self.actual_entries_amount]
-        print(self.list_pos, len(self.search_elems))
         for i in range(self.entries_amount):
             if i >= len(self.search_elems):
                 continue
@@ -157,16 +155,20 @@ class CanvasBox(tk.Canvas):
             btn.bind("<FocusOut>", unfocus_func)
             self.buttons_list.append(btn)
 
+    def search(self, phrase):
+        res = process.extract(phrase, self.process_elems, limit=len(self.process_elems))
+        self.sorted_elems = [i[0] for i in res]
+        self.list_pos = 0
+        self.redraw_entries(True)
+
     def redraw_entries(self, update=False):
         if update:
             self.destroy_entries()
             self.buttons_list = []
         self.actual_entries_amount = self.entries_amount
         if self.entries_amount + (self.list_pos//self.entries_amount)*self.entries_amount > len(self.sorted_elems):
-            #self.actual_entries_amount = len(self.sorted_elems) - self.list_pos
             self.actual_entries_amount = len(self.sorted_elems) - (self.list_pos//self.entries_amount)*self.entries_amount
         self.search_elems = self.sorted_elems[(self.list_pos//self.entries_amount)*self.entries_amount:(self.list_pos//self.entries_amount)*self.entries_amount + self.actual_entries_amount]
-        print(self.list_pos, len(self.search_elems))
         if not update:
             return
         for i in range(self.entries_amount):
@@ -300,8 +302,13 @@ def main():
             search_label.changeText(search_label.labeltext + str(event.char))
             canvas.dropdown = True
             canvas.buttons_list[0].focus_on_btn()
+            canvas.search(search_label.labeltext)
+            if len(canvas.sorted_elems) > 0:
+                canvas.buttons_list[0].focus_on_btn()
+            fMgr.cur_drop_focus_pos = 0
             canvas.move_to_non_recursive(window, config.width, config.height, 1, step=1, speed=config.parser['CanvasDropdownSpeed'], frame_skip=config.parser['CanvasDropdownFrameSkip'])
         else:
+            canvas.search(search_label.labeltext)
             search_label.changeText(search_label.labeltext + str(event.char))
 
     def delete(event):
@@ -313,6 +320,11 @@ def main():
         else:
             text = text[:-1]
         search_label.changeText(text)
+        if not search_label.labeltext == "":
+            canvas.search(search_label.labeltext)
+            if len(canvas.sorted_elems) > 0:
+                canvas.buttons_list[0].focus_on_btn()
+            fMgr.cur_drop_focus_pos = 0
         if not search_label.emptyQuery and search_label.labeltext == "":
             search_label.changeText("Start typing...")
             search_label.emptyQuery = True
@@ -353,7 +365,6 @@ def main():
                 if fMgr.cur_drop_focus_pos >= actual_entries:
                 # move to the first elem
                     fMgr.cur_drop_focus_pos = 0
-            print(canvas.actual_entries_amount, fMgr.cur_drop_focus_pos)
             if canvas.actual_entries_amount > 0:
                 canvas.buttons_list[fMgr.cur_drop_focus_pos].focus_on_btn()
         else:
