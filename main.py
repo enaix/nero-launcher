@@ -86,7 +86,7 @@ class AppButton(ttk.Frame):
         pass
 
     def launch(self):
-        os.system("nohup " + self.exec_path + " > /dev/null")
+        os.system("nohup " + self.exec_path + " > /dev/null &")
 
 class SearchBox(ttk.Combobox):
     def __init__(self, parent, text="", style=None, height=None, width=None, *args, **kwargs):
@@ -150,6 +150,7 @@ class CanvasBox(tk.Canvas):
             if i >= len(self.search_elems):
                 continue
             btn = AppButton(self, self.search_elems[i]['Name'], f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], compound='left', style='W.TButton', image_path=self.search_elems[i]['IconPath'])
+            btn.exec_path = self.search_elems[i]['Exec']
             btn.place(x=0, y=config.top_panel_height+i*config.parser['DropdownButtonHeight'])
             btn.bind("<FocusIn>", focus_func)
             btn.bind("<FocusOut>", unfocus_func)
@@ -175,6 +176,7 @@ class CanvasBox(tk.Canvas):
             if i >= len(self.search_elems):
                 continue
             btn = AppButton(self, self.search_elems[i]['Name'], f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], compound='left', style='W.TButton', image_path=self.search_elems[i]['IconPath'])
+            btn.exec_path = self.search_elems[i]['Exec']
             btn.place(x=0, y=config.top_panel_height+i*config.parser['DropdownButtonHeight'])
             btn.bind("<FocusIn>", self.focus_func)
             btn.bind("<FocusOut>", self.unfocus_func)
