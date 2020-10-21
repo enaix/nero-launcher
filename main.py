@@ -134,9 +134,10 @@ class CanvasBox(tk.Canvas):
     def create_roundbox(self):
         pass
 
-    def create_entries(self, focus_func, unfocus_func):
+    def create_entries(self, focus_func, unfocus_func, click_func):
         self.focus_func = focus_func
         self.unfocus_func = unfocus_func
+        self.click_func = click_func
         self.buttons_list = []
         self.entries_amount = (config.height - config.top_panel_height)//config.parser['DropdownButtonHeight']
         self.process_elems = sorted(config.apps, key=lambda x: x['Name'])
@@ -154,6 +155,7 @@ class CanvasBox(tk.Canvas):
             btn.place(x=0, y=config.top_panel_height+i*config.parser['DropdownButtonHeight'])
             btn.bind("<FocusIn>", focus_func)
             btn.bind("<FocusOut>", unfocus_func)
+            btn._btn.bind("<Button-1>", click_func)
             self.buttons_list.append(btn)
 
     def search(self, phrase):
@@ -180,6 +182,7 @@ class CanvasBox(tk.Canvas):
             btn.place(x=0, y=config.top_panel_height+i*config.parser['DropdownButtonHeight'])
             btn.bind("<FocusIn>", self.focus_func)
             btn.bind("<FocusOut>", self.unfocus_func)
+            btn._btn.bind("<Button-1>", self.click_func)
             self.buttons_list.append(btn)
 
     def destroy_entries(self):
@@ -291,7 +294,7 @@ def main():
     rounded = RoundBox(canvas, config.parser['RoundBoxHeight'], config.width)
     rounded.place(x=0, y=config.parser['SearchLabelHeight'])
     
-    canvas.create_entries(set_focus_color, unset_focus_color)
+    canvas.create_entries(set_focus_color, unset_focus_color, launch_app)
 
     is_special = re.compile(r'[\ \.@\-\+=\_!\#\$%\^&\*\(\)\<\>\?\\\/\|\}\{~\:`\[\]]')
 
