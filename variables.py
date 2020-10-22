@@ -45,4 +45,9 @@ EXPORT_CONFIG = {
     'IconThemes': ['hicolor', 'default'],
     'IconResolutions': ['1024x1024', '512x512', '256x256', '128x128', '192x192', '20x20', '22x22', '24x24', '32x32', '36x36', '40x40', '42x42', '48x48', '64x64', '72x72', '8x8', '96x96', '16x16'],
     'IconFormats': ['png', 'xpm', 'svg'],
+    'Apps': [
+        [None, None, None],
+        [None, None, None],
+        [None, None, None],
+        ],
 }

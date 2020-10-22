@@ -10,8 +10,6 @@ import configparser
 import argparse
 import variables
 
-#def on_press(key):
-
 class Config():
     def __init__(self):
         self.parser = variables.EXPORT_CONFIG
@@ -86,7 +84,8 @@ class AppButton(ttk.Frame):
         pass
 
     def launch(self):
-        os.system("nohup " + self.exec_path + " > /dev/null &")
+        if not self.exec_path == None:
+            os.system("nohup " + self.exec_path + " > /dev/null &")
 
 class SearchBox(ttk.Combobox):
     def __init__(self, parent, text="", style=None, height=None, width=None, *args, **kwargs):
@@ -279,7 +278,16 @@ def main():
     for i in range(config.parser['ButtonsAmountY']):
         buttons.append([])
         for j in range(config.parser['ButtonsAmountX']):
-            btn = AppButton(window, 'Chrome', f_style='L.TFrame', width=config.parser['ButtonWidth'], height=config.parser['ButtonHeight'], style='W.TButton')
+            app = {'Name': None, 'IconPath': None, 'Exec': None}
+            if not config.parser['Apps'][i][j] == None:
+                if len(config.parser['Apps'][i][j]) == 3:
+                    app['Name'] = config.parser['Apps'][i][j]['Name']
+                    app['IconPath'] = config.parser['Apps'][i][j]['IconPath']
+                    app['Exec'] = config.parser['Apps'][i][j]['Exec']
+                elif len(config.parser['Apps'][i][j]) == 1:
+                    app = config.scanApp(config.parser['Apps'][i][j]['Desktop'])
+            btn = AppButton(window, app['Name'], f_style='L.TFrame', width=config.parser['ButtonWidth'], height=config.parser['ButtonHeight'], image_path=app['IconPath'], style='W.TButton')
+            btn.exec_path = app['Exec']
             btn.grid(row=i+2, column=j)
             btn.bind("<FocusIn>", set_focus_color)
             btn.bind("<FocusOut>", unset_focus_color)
