@@ -26,7 +26,8 @@ class Config():
         self.top_panel_height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight']
 
         self.apps = []
-        self.scanFolder('/usr/share/applications')
+        for folder in self.parser['DesktopFolders']:
+            self.scanFolder(folder)
 
     def scanFolder(self, path):
         files = os.listdir(path=path)
@@ -35,6 +36,8 @@ class Config():
                 self.apps.append(self.scanApp(path + '/' + i))
 
     def getIconPath(self, icon):
+        if not icon.find('/') == -1:
+            return icon
         for folder in self.parser['IconFolders']:
             for theme in self.parser['IconThemes']:
                 for res in self.parser['IconResolutions']:
@@ -61,8 +64,12 @@ class AppButton(ttk.Frame):
     def __init__(self, parent, text="", f_style=None, height=None, width=None, img_width=config.parser['ButtonImageSize'], compound='top', image_path=None, *args, **kwargs):
         ttk.Frame.__init__(self, parent, height=height, width=width, style=f_style)
         if not image_path == None:
-            img_raw = Pil_image.open(image_path).resize((img_width, img_width), Pil_image.ANTIALIAS)
-            self._photo = Pil_imageTk.PhotoImage(img_raw)
+            try:
+                img_raw = Pil_image.open(image_path).resize((img_width, img_width), Pil_image.ANTIALIAS)
+            except BaseException:
+                self._photo = None
+            else:
+                self._photo = Pil_imageTk.PhotoImage(img_raw)
         else:
             self._photo = None
         self.pack_propagate(0)
