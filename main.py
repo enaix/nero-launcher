@@ -490,7 +490,7 @@ def main():
     window.bind("<BackSpace>", delete)
     window.bind("<Escape>", esc)
     window.bind("<Return>", launch_on_enter)
-    window.bind("<Control-r>", config.rescan)
+    window.bind("<Control-r>", lambda event:[config.rescan(), config.updateMeta()])
     window.mainloop()
 
 if __name__ == "__main__":
