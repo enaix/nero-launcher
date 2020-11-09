@@ -45,10 +45,21 @@ class Config():
         self.height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight'] + self.parser['ButtonHeight'] * self.parser['ButtonsAmountY']
         self.top_panel_height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight']
 
+        update_meta = False
+
         if os.path.exists(self.parser['AppCacheFileLocation']):
             self.importApps(self.parser['AppCacheFileLocation'])
         else:
-            self.rescan()    
+            self.rescan()
+            update_meta = True
+
+        if os.path.exists(self.parser['AppMetaFileLocation']):
+            self.importMeta(self.parser['AppMetaFileLocation'])
+        else:
+            self.createMeta()
+
+        if update_meta:
+            self.updateMeta()
 
     def exportApps(self, dest):
         with open(dest, 'w') as out:
@@ -58,6 +69,25 @@ class Config():
         with open(src) as inp:
             data = json.load(inp)
             self.apps = data
+
+    def exportMeta(self, dest):
+        with open(dest, 'w') as out:
+            json.dump(self.app_meta, out)
+
+    def importMeta(self, src):
+        with open(src) as inp:
+            data = json.load(inp)
+            self.app_meta = data
+
+    def createMeta(self):
+        self.app_meta = {}
+        for app in self.apps:
+            self.app_meta[app['Name']] = {'Launchs': 0}
+
+    def updateMeta(self):
+        for app in self.apps:
+            if self.app_meta.get(app['Name']) is None:
+                self.app_meta[app['Name']] = {'Launchs': 0}
 
     def rescan(self, *args, **kwargs):
         self.apps = []
@@ -115,6 +145,7 @@ class AppButton(ttk.Frame):
         def exec_launch():
             self.launch()
         self._btn.exec_launch = exec_launch
+        self._btn.text = text
 
     def focus_on_btn(self):
         self.focus_set()
@@ -313,7 +344,9 @@ def main():
         event.widget.set_style('W.TButton')
 
     def launch_app(event):
+        config.app_meta[event.widget.text]['Launchs'] += 1
         event.widget.exec_launch()
+        config.exportMeta(config.parser['AppMetaFileLocation'])
         window.destroy()
 
     window.grid_rowconfigure(0, minsize=config.top_panel_height)
@@ -419,7 +452,6 @@ def main():
                 canvas.redraw_entries(update)
                 fMgr.cur_drop_focus_pos += 1
                 if fMgr.cur_drop_focus_pos >= actual_entries:
-                # move to the first elem
                     fMgr.cur_drop_focus_pos = 0
             if canvas.actual_entries_amount > 0:
                 canvas.buttons_list[fMgr.cur_drop_focus_pos].focus_on_btn()

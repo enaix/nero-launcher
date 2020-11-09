@@ -55,4 +55,5 @@ EXPORT_CONFIG = {
     'DefaultInstallationFolder': '/home/' + os.environ['USER'] + '/nero-launcher',
     'DefaultConfigFolder': '/home/' + os.environ['USER'] + '/.config/nero-launcher',
     'AppCacheFileLocation': './appcache.json',
+    'AppMetaFileLocation': './appmeta.json',
 }
