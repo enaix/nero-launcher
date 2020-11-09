@@ -7,6 +7,7 @@ import time
 import re
 import os
 import configparser
+import operator
 import argparse
 import variables
 import json
@@ -81,13 +82,13 @@ class Config():
 
     def createMeta(self):
         self.app_meta = {}
-        for app in self.apps:
-            self.app_meta[app['Name']] = {'Launchs': 0}
+        for i in range(len(self.apps)):
+            self.app_meta[self.apps[i]['Name']] = {'Launchs': 0, 'App': self.apps[i]}
 
     def updateMeta(self):
-        for app in self.apps:
-            if self.app_meta.get(app['Name']) is None:
-                self.app_meta[app['Name']] = {'Launchs': 0}
+        for i in range(len(self.apps)):
+            if self.app_meta.get(self.apps[i]['Name']) is None:
+                self.app_meta[self.apps[i]['Name']] = {'Launchs': 0, 'App': self.apps[i]}
 
     def rescan(self, *args, **kwargs):
         self.apps = []
@@ -159,6 +160,9 @@ class AppButton(ttk.Frame):
 
     def launch(self):
         if not self.exec_path == None:
+            # Export metadata
+            config.app_meta[self._btn.text]['Launchs'] += 1
+            config.exportMeta(config.parser['AppMetaFileLocation'])
             os.system("./launcher.sh " + self.exec_path + " 2>&1")
 
 class SearchBox(ttk.Combobox):
@@ -344,13 +348,15 @@ def main():
         event.widget.set_style('W.TButton')
 
     def launch_app(event):
-        config.app_meta[event.widget.text]['Launchs'] += 1
         event.widget.exec_launch()
-        config.exportMeta(config.parser['AppMetaFileLocation'])
         window.destroy()
 
     window.grid_rowconfigure(0, minsize=config.top_panel_height)
     buttons = []
+    popular_apps_dict = {key: value for key, value in sorted(config.app_meta.items(), key=lambda item: item[1]['Launchs'], reverse=True)}
+    popular_apps = []
+    for _, (k, v) in enumerate(popular_apps_dict.items()):
+        popular_apps.append((k, v))
     for i in range(config.parser['ButtonsAmountY']):
         buttons.append([])
         for j in range(config.parser['ButtonsAmountX']):
@@ -362,6 +368,11 @@ def main():
                     app['Exec'] = config.parser['Apps'][i][j]['Exec']
                 elif len(config.parser['Apps'][i][j]) == 1:
                     app = config.scanApp(config.parser['Apps'][i][j]['Desktop'])
+            else:
+                try:
+                    app = popular_apps[i*config.parser['ButtonsAmountX'] + j][1]['App']
+                except IndexError:
+                    pass
             btn = AppButton(window, app['Name'], f_style='L.TFrame', width=config.parser['ButtonWidth'], height=config.parser['ButtonHeight'], image_path=app['IconPath'], style='W.TButton')
             btn.exec_path = app['Exec']
             btn.grid(row=i+2, column=j)
