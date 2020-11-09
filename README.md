@@ -13,6 +13,8 @@ Nero remembers the most popular apps and shows them (if none are specified).
 Personally, I find the tiled view much more usable than traditional dropdown, like in Raspbian.
 This project is mainly targeted at RPI users with TVs or mobile screens (VNC) as there are currently no launchers with similar features.
 
+Note: Nero doesn't scan the desktop files each time, so you need to press Ctrl-R to update the app cache.
+
 ## Customization
 
 Nero can be fully customized using its config system.
