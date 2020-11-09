@@ -9,6 +9,7 @@ import os
 import configparser
 import argparse
 import variables
+import json
 
 class Config():
     def __init__(self):
@@ -44,9 +45,25 @@ class Config():
         self.height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight'] + self.parser['ButtonHeight'] * self.parser['ButtonsAmountY']
         self.top_panel_height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight']
 
+        if os.path.exists(self.parser['AppCacheFileLocation']):
+            self.importApps(self.parser['AppCacheFileLocation'])
+        else:
+            self.rescan()    
+
+    def exportApps(self, dest):
+        with open(dest, 'w') as out:
+            json.dump(self.apps, out)
+
+    def importApps(self, src):
+        with open(src) as inp:
+            data = json.load(inp)
+            self.apps = data
+
+    def rescan(self, *args, **kwargs):
         self.apps = []
         for folder in self.parser['DesktopFolders']:
             self.scanFolder(folder)
+        self.exportApps(self.parser['AppCacheFileLocation'])
 
     def scanFolder(self, path):
         files = os.listdir(path=path)
@@ -430,6 +447,7 @@ def main():
     window.bind("<BackSpace>", delete)
     window.bind("<Escape>", esc)
     window.bind("<Return>", launch_on_enter)
+    window.bind("<Control-r>", config.rescan)
     window.mainloop()
 
 if __name__ == "__main__":
