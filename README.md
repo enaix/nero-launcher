@@ -2,7 +2,7 @@
 
 ### Simple app launcher with tiles
 
-![nero-launcher](https://github.com/enaix/nero-launcher/img/screen1.png)
+![nero-launcher](img/screen1.png)
 
 This launcher ships with fast and user-friendly UI, written in Tkinter
 
@@ -40,17 +40,17 @@ Please note that you will need to configure frame skip and dropdown animation sp
 
 In your config file specify
 
-`
+```
 ...
     'CanvasDropdownSpeed': ...,
     'CanvasDropdownFrameSkip': ...,
     'CanvasDropdownReturnSpeed': ...,
     'CanvasDropdownReturnFrameSkip': ...,
 ...
-`
+```
 
 where CanvasDropdownSpeed/CanvasDropdownReturnSpeed should be between 5 and 15-20 and CanvasDropdownFrameSkip/CanvasDropdownFrameSkip should be between 10 and 50, according to your system.
 
 ## Screenshots
 
-![nero-launcher dropdown](https://github.com/enaix/nero-launcher/img/screen2.png)
+![nero-launcher dropdown](img/screen2.png)
