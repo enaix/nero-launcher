@@ -1,0 +1,5 @@
+tkinter
+python-tk
+pillow
+fuzzywuzzy
+python-Levenshtein

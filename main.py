@@ -3,7 +3,6 @@ import tkinter.ttk as ttk
 from PIL import Image as Pil_image, ImageTk as Pil_imageTk
 from importlib import import_module, util
 from fuzzywuzzy import fuzz, process
-from subprocess import Popen
 import time
 import re
 import os
