@@ -1,3 +1,5 @@
+import os
+
 EXPORT_CONFIG = {
     'WindowBackground': '#f0f0f0',
     'ButtonWidth': 180,
@@ -40,8 +42,8 @@ EXPORT_CONFIG = {
     'ButtonKeyDown': {116},
     'ButtonKeyLeft': {113},
     'ButtonKeyRight': {114},
-    'DesktopFolders': ['/usr/share/applications', '/home/flynn/.local/share/applications'],
-    'IconFolders': ['/usr/share/icons', '/usr/share/pixmaps', '/home/flynn/.local/share/icons'],
+    'DesktopFolders': ['/usr/share/applications', '/home/' + os.environ['USER'] + '/.local/share/applications'],
+    'IconFolders': ['/usr/share/icons', '/usr/share/pixmaps', '/home/' + os.environ['USER'] + '/.local/share/icons'],
     'IconThemes': ['Adwaita', 'hicolor', 'default'],
     'IconResolutions': ['1024x1024', '512x512', '256x256', '192x192', '128x128', '96x96', '72x72', '64x64', '48x48', '42x42', '40x40', '36x36', '32x32', '24x24', '22x22', '20x20', '16x16', '8x8'],
     'IconFormats': ['png', 'xpm', 'svg'],

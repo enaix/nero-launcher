@@ -3,6 +3,7 @@ import tkinter.ttk as ttk
 from PIL import Image as Pil_image, ImageTk as Pil_imageTk
 from importlib import import_module
 from fuzzywuzzy import fuzz, process
+from subprocess import Popen
 import time
 import re
 import os
@@ -92,7 +93,9 @@ class AppButton(ttk.Frame):
 
     def launch(self):
         if not self.exec_path == None:
-            os.system("nohup " + self.exec_path + " > /dev/null &")
+            #print("nohup \"$(" + self.exec_path + " && shift)\" </dev/null &>/dev/null 2>&1 &")
+            #os.system("nohup \"$(" + self.exec_path + ")\" </dev/null &>/dev/null 2>&1 &")
+            os.system("./launcher.sh " + self.exec_path + " 2>&1")
 
 class SearchBox(ttk.Combobox):
     def __init__(self, parent, text="", style=None, height=None, width=None, *args, **kwargs):
