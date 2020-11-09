@@ -1,5 +1,3 @@
 #!/bin/bash
-
-NERO_PATH="/home/"$USER"/nero-launcher"
-
+NERO_PATH="/home/flynn/nero-launcher"
 python3 $NERO_PATH/main.py -d $NERO_PATH
