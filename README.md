@@ -2,7 +2,7 @@
 
 ### Simple app launcher with tiles
 
-![nero-launcher](https://github.com/enaix/nero-launcher/ui/screen1.png)
+![nero-launcher](https://github.com/enaix/nero-launcher/img/screen1.png)
 
 This launcher ships with fast and user-friendly UI, written in Tkinter
 
@@ -53,4 +53,4 @@ where CanvasDropdownSpeed/CanvasDropdownReturnSpeed should be between 5 and 15-2
 
 ## Screenshots
 
-![nero-launcher dropdown](https://github.com/enaix/nero-launcher/ui/screen2.png)
+![nero-launcher dropdown](https://github.com/enaix/nero-launcher/img/screen2.png)
