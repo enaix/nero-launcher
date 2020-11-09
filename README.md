@@ -2,7 +2,7 @@
 
 ### Simple app launcher with tiles
 
-![nero-launcher](https://github.com/enaix/nero-launcher/img/screen1.png)
+![nero-launcher](img/screen1.png)
 
 This launcher ships with fast and user-friendly UI, written in Tkinter
 
@@ -12,6 +12,8 @@ Nero remembers the most popular apps and shows them (if none are specified).
 
 Personally, I find the tiled view much more usable than traditional dropdown, like in Raspbian.
 This project is mainly targeted at RPI users with TVs or mobile screens (VNC) as there are currently no launchers with similar features.
+
+Note: Nero doesn't scan the desktop files each time, so you need to press Ctrl-R to update the app cache.
 
 ## Customization
 
@@ -40,17 +42,17 @@ Please note that you will need to configure frame skip and dropdown animation sp
 
 In your config file specify
 
-`
+```
 ...
     'CanvasDropdownSpeed': ...,
     'CanvasDropdownFrameSkip': ...,
     'CanvasDropdownReturnSpeed': ...,
     'CanvasDropdownReturnFrameSkip': ...,
 ...
-`
+```
 
 where CanvasDropdownSpeed/CanvasDropdownReturnSpeed should be between 5 and 15-20 and CanvasDropdownFrameSkip/CanvasDropdownFrameSkip should be between 10 and 50, according to your system.
 
 ## Screenshots
 
-![nero-launcher dropdown](https://github.com/enaix/nero-launcher/img/screen2.png)
+![nero-launcher dropdown](img/screen2.png)
