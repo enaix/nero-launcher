@@ -1,7 +1,7 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from PIL import Image as Pil_image, ImageTk as Pil_imageTk
-from importlib import import_module
+from importlib import import_module, util
 from fuzzywuzzy import fuzz, process
 from subprocess import Popen
 import time
@@ -17,11 +17,30 @@ class Config():
         
         self.argparser = argparse.ArgumentParser("nero-launcher")
         self.argparser.add_argument("-c", "--config", help="Path to the configuration file")
+        self.argparser.add_argument("-d", "--directory", help="Nero installation folder")
+        self.argparser.add_argument("-f", "--folder", help="Config folder")
         self.args = self.argparser.parse_args()
         if self.args.config != None:
             self.custom_settings = import_module(self.args.config)
             self.parser = {**self.parser, **self.custom_settings.CONFIG}
         
+        if self.args.directory == None:
+            os.chdir(self.parser['DefaultInstallationFolder'])
+        else:
+            os.chdir(self.args.directory)
+
+        if self.args.folder == None:
+            self.config_dir = self.parser['DefaultConfigFolder']
+        else:
+            self.config_dir = self.args.folder
+
+        if os.path.exists(self.config_dir):
+            spec = util.spec_from_file_location("main", self.config_dir + "/main.py")
+            foo = util.module_from_spec(spec)
+            spec.loader.exec_module(foo)
+            for mod in foo.MODULES:
+                self.parser = {**self.parser, **import_module(mod).CONFIG}
+
         self.width = self.parser['ButtonWidth'] * self.parser['ButtonsAmountX']
         self.height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight'] + self.parser['ButtonHeight'] * self.parser['ButtonsAmountY']
         self.top_panel_height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight']
@@ -93,8 +112,6 @@ class AppButton(ttk.Frame):
 
     def launch(self):
         if not self.exec_path == None:
-            #print("nohup \"$(" + self.exec_path + " && shift)\" </dev/null &>/dev/null 2>&1 &")
-            #os.system("nohup \"$(" + self.exec_path + ")\" </dev/null &>/dev/null 2>&1 &")
             os.system("./launcher.sh " + self.exec_path + " 2>&1")
 
 class SearchBox(ttk.Combobox):

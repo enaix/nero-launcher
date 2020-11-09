@@ -7,7 +7,7 @@ CONFIG = {
             ],
             [
                 {'Desktop': '/usr/share/applications/net.lutris.Lutris.desktop'},
-                {'Desktop': '/usr/share/applications/org.gnome.Shell.desktop'},
+                {'Desktop': '/usr/share/applications/org.gnome.Terminal.desktop'},
                 {'Desktop': '/home/flynn/.local/share/applications/pycharm.desktop'}
             ],
             [
