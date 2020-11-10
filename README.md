@@ -62,3 +62,7 @@ where CanvasDropdownSpeed/CanvasDropdownReturnSpeed should be between 5 and 15-2
 ## Screenshots
 
 ![nero-launcher dropdown](img/screen2.png)
+
+## Credits
+
+Thanks @bahamas10 for the cec-keypresses script (https://gist.github.com/bahamas10/6996290)

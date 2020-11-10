@@ -1,0 +1,9 @@
+[Unit]
+Description=CEC keypresses service
+After=graphical.target
+[Service]
+Environment="XAUTHORITY=/home/pi/.Xauthority"
+Environment="DISPLAY=:0"
+ExecStart=/home/pi/nero-launcher/extras/cec-keypresses.sh
+[Install]
+WantedBy=graphical.target
