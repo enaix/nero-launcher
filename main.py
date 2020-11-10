@@ -338,12 +338,12 @@ def main():
     # window.tk.call('wm', 'iconphoto', window._w, tk.PhotoImage(file='./logo_white.ico'))
 
     style = ttk.Style()
-    style.configure('W.TButton', font=(config.parser['ButtonFontSize']), foreground=config.parser['ButtonForegroundColor'], background=config.parser['ButtonBackgroundColor'], relief='flat', highlightthickness=0)
+    style.configure('W.TButton', font=(config.parser['DefaultFont'], config.parser['ButtonFontSize']), foreground=config.parser['ButtonForegroundColor'], background=config.parser['ButtonBackgroundColor'], relief='flat', highlightthickness=0)
     style.map('W.TButton', background=[('pressed', config.parser['ButtonPressedBackgroundColor']), ('active', config.parser['ButtonActiveBackgroundColor'])])
-    style.configure('WF.TButton', font=(config.parser['ButtonFontSize']), foreground=config.parser['FocusedButtonForegroundColor'], background=config.parser['FocusedButtonBackgroundColor'], relief='flat', highlightthickness=0)
+    style.configure('WF.TButton', font=(config.parser['DefaultFont'], config.parser['ButtonFontSize']), foreground=config.parser['FocusedButtonForegroundColor'], background=config.parser['FocusedButtonBackgroundColor'], relief='flat', highlightthickness=0)
     style.map('WF.TButton', background=[('pressed', config.parser['FocusedButtonPressedForegroundColor']), ('active', config.parser['FocusedButtonActiveForegroundColor'])])
     style.configure('L.TFrame', background=config.parser['ButtonFrameBorderColor'])
-    style.configure('G.TLabel', foreground=config.parser['SearchLabelForegroundColor'], font=(config.parser['SearchLabelFontSize']))
+    style.configure('G.TLabel', foreground=config.parser['SearchLabelForegroundColor'], font=(config.parser['DefaultFont'], config.parser['SearchLabelFontSize']))
 
     def set_focus_color(event):
         event.widget.set_style('WF.TButton')

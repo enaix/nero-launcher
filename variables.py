@@ -2,6 +2,7 @@ import os
 
 EXPORT_CONFIG = {
     'WindowBackground': '#f0f0f0',
+    'DefaultFont': 'TkDefaultFont',
     'ButtonWidth': 180,
     'ButtonHeight': 200,
     'ButtonsAmountX': 3,
