@@ -36,11 +36,9 @@ class Config():
             self.config_dir = self.args.folder
 
         if os.path.exists(self.config_dir):
-            spec = util.spec_from_file_location("main", self.config_dir + "/main.py")
-            foo = util.module_from_spec(spec)
-            spec.loader.exec_module(foo)
-            for mod in foo.MODULES:
-                self.parser = {**self.parser, **import_module(mod).CONFIG}
+            mod_file = self.importModule(self.config_dir, "main", "main.py")
+            for mod in mod_file.MODULES:
+                self.parser = {**self.parser, **self.importModule(self.config_dir, mod, mod + ".py").CONFIG}
 
         self.width = self.parser['ButtonWidth'] * self.parser['ButtonsAmountX']
         self.height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight'] + self.parser['ButtonHeight'] * self.parser['ButtonsAmountY']
@@ -61,6 +59,12 @@ class Config():
 
         if update_meta:
             self.updateMeta()
+
+    def importModule(self, folder, name, path):
+        spec = util.spec_from_file_location(name, folder + "/" + path)
+        foo = util.module_from_spec(spec)
+        spec.loader.exec_module(foo)
+        return foo
 
     def exportApps(self, dest):
         with open(dest, 'w') as out:
