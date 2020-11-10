@@ -34,6 +34,12 @@ On Debian-based systems run:
 
 `sudo apt install python3-pil.imagetk python3-tk`
 
+On Arch-based systems run:
+
+`sudo pacman -S python-pillow tk`
+
+
+
 Then run `sudo ./install.sh` to install Nero executable
 
 ## Speed
