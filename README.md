@@ -69,6 +69,11 @@ In your config file specify
 
 where CanvasDropdownSpeed/CanvasDropdownReturnSpeed should be between 5 and 15-20 and CanvasDropdownFrameSkip/CanvasDropdownFrameSkip should be between 10 and 50, according to your system.
 
+## Extras
+
+If you have a TV with Raspberry PI, you may want to install a service that will allow you to control Nero and other apps like Kodi using a TV remote.
+Installation instructions are located in extras/README.md file.
+
 ## Screenshots
 
 ![nero-launcher dropdown](img/screen2.png)
