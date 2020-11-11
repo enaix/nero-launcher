@@ -333,7 +333,7 @@ def main():
     window.geometry(str(config.width) + "x" + str(config.height))
     window.resizable(False, False)
     window.title('nero')
-    window.tk.call('wm', 'iconphoto', window._w, tk.PhotoImage(file='./ui/logo_white.png'))
+    window.tk.call('wm', 'iconphoto', window._w, tk.PhotoImage(file=config.parser['WindowIconPath']))
 
     style = ttk.Style()
     style.configure('W.TButton', font=(config.parser['DefaultFont'], config.parser['ButtonFontSize']), foreground=config.parser['ButtonForegroundColor'], background=config.parser['ButtonBackgroundColor'], relief='flat', highlightthickness=0)

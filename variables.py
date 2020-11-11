@@ -2,6 +2,7 @@ import os
 
 EXPORT_CONFIG = {
     'WindowBackground': '#f0f0f0',
+    'WindowIconPath': './ui/logo_white.png',
     'DefaultFont': 'TkDefaultFont',
     'ButtonWidth': 180,
     'ButtonHeight': 200,
