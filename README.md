@@ -72,7 +72,7 @@ where CanvasDropdownSpeed/CanvasDropdownReturnSpeed should be between 5 and 15-2
 ## Extras
 
 If you have a TV with Raspberry PI, you may want to install a service that will allow you to control Nero and other apps like Kodi using a TV remote.
-Installation instructions are located in extras/README.md file.
+Installation instructions are located in https://github.com/enaix/nero-launcher/tree/master/extras
 
 ## Screenshots
 
