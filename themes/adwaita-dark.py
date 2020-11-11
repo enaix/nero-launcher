@@ -1,0 +1,17 @@
+CONFIG={
+    'WindowBackground': '#2d2d2d',
+    'ButtonForegroundColor': '#ffffff',
+    'ButtonBackgroundColor': '#313131',
+    'ButtonPressedBackgroundColor': '#212121',
+    'ButtonActiveBackgroundColor': '#282828',
+    'FocusedButtonForegroundColor': '#ffffff',
+    'FocusedButtonBackgroundColor': '#282828',
+    'FocusedButtonPressedForegroundColor': '#ffffff',
+    'FocusedButtonActiveForegroundColor': '#ffffff',
+    'ButtonFrameBorderColor': '#2d2d2d',
+    'SearchLabelForegroundColor': '#ffffff',
+    'SearchLabelBackgroundColor': '#424242',
+    'SearchLabelIconPath': './ui/search-adwaita-dark.png',
+    'RoundBoxPath': './ui/rounded-adwaita-dark.png',
+    'CanvasBackgroundColor': '#2d2d2d',
+}

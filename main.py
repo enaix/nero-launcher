@@ -39,7 +39,6 @@ class Config():
             mod_file = self.importModule(self.config_dir, "main", "main.py")
             for mod in mod_file.MODULES:
                 self.parser = {**self.parser, **self.importModule(self.config_dir, mod, mod + ".py").CONFIG}
-
         self.width = self.parser['ButtonWidth'] * self.parser['ButtonsAmountX']
         self.height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight'] + self.parser['ButtonHeight'] * self.parser['ButtonsAmountY']
         self.top_panel_height = self.parser['SearchLabelHeight'] + self.parser['RoundBoxHeight']
@@ -175,14 +174,14 @@ class SearchBox(ttk.Combobox):
         self.pack_propagate(0)
 
 class LabelBox(ttk.Frame):
-    def __init__(self, parent, text="", s_style=None, height=None, width=None, style=None, *args, **kwargs):
+    def __init__(self, parent, text="", s_style=None, p_style=None, height=None, width=None, style=None, *args, **kwargs):
         ttk.Frame.__init__(self, parent, height=height, width=width, style=s_style)
         self.labeltext = text
         self.emptyQuery = True
-        self._label = ttk.Label(self, text=self.labeltext, style=style, justify=tk.CENTER)
+        self._label = ttk.Label(self, text=self.labeltext, style=style, foreground=config.parser['SearchLabelForegroundColor'], justify=tk.CENTER)
         img_raw = Pil_image.open(config.parser['SearchLabelIconPath']).resize((config.parser['SearchLabelIconSize'], config.parser['SearchLabelIconSize']), Pil_image.ANTIALIAS)
         self._photo = Pil_imageTk.PhotoImage(img_raw)
-        self._photoLabel = ttk.Label(self, image=self._photo, justify=tk.LEFT, *args, **kwargs)
+        self._photoLabel = ttk.Label(self, image=self._photo, style=p_style, justify=tk.LEFT, *args, **kwargs)
         self.pack_propagate(0)
         self._photoLabel.pack(side=tk.LEFT, padx=config.parser['SearchLabelIconPaddingX'], pady=config.parser['SearchLabelIconPaddingY'])
         self._label.pack(side=tk.LEFT, padx=config.parser['SearchLabelInputPaddingX'], pady=config.parser['SearchLabelInputPaddingY'])
@@ -197,12 +196,12 @@ class RoundBox(ttk.Label):
     def __init__(self, parent, height=None, width=None, style=None, *args, **kwargs):
         img_raw = Pil_image.open(config.parser['RoundBoxPath']).resize((width, height), Pil_image.ANTIALIAS)
         self._photo = Pil_imageTk.PhotoImage(img_raw)
-        ttk.Label.__init__(self, parent, image=self._photo, *args, **kwargs)
+        ttk.Label.__init__(self, parent, style=style, image=self._photo, *args, **kwargs)
         self.pack_propagate(0)
 
 class CanvasBox(tk.Canvas):
     def __init__(self, parent, posx, posy, height, width):
-        tk.Canvas.__init__(self, parent, width=width, height=height, bg=config.parser['CanvasBackgroundColor'])
+        tk.Canvas.__init__(self, parent, width=width, height=height, background=config.parser['CanvasBackgroundColor'])
         self.place(x=posx, y=posy)
         self.c_width = width
         self.c_height = height
@@ -343,7 +342,9 @@ def main():
     style.configure('WF.TButton', font=(config.parser['DefaultFont'], config.parser['ButtonFontSize']), foreground=config.parser['FocusedButtonForegroundColor'], background=config.parser['FocusedButtonBackgroundColor'], relief='flat', highlightthickness=0)
     style.map('WF.TButton', background=[('pressed', config.parser['FocusedButtonPressedForegroundColor']), ('active', config.parser['FocusedButtonActiveForegroundColor'])])
     style.configure('L.TFrame', background=config.parser['ButtonFrameBorderColor'])
-    style.configure('G.TLabel', foreground=config.parser['SearchLabelForegroundColor'], font=(config.parser['DefaultFont'], config.parser['SearchLabelFontSize']))
+    style.configure('G.TLabel', foreground=config.parser['SearchLabelForegroundColor'], background=config.parser['SearchLabelBackgroundColor'], font=(config.parser['DefaultFont'], config.parser['SearchLabelFontSize']))
+    style.configure('S.TFrame', background=config.parser['SearchLabelBackgroundColor'])
+    style.configure('S.TLabel', background=config.parser['SearchLabelBackgroundColor'])
 
     def set_focus_color(event):
         event.widget.set_style('WF.TButton')
@@ -388,9 +389,9 @@ def main():
     canvas = CanvasBox(window, 0, 0, config.top_panel_height, config.width)
     canvas.create_roundbox()
 
-    search_label = LabelBox(canvas, 'Start typing...', width=config.width, height=config.parser['SearchLabelHeight'], style='G.TLabel')
+    search_label = LabelBox(canvas, 'Start typing...', width=config.width, height=config.parser['SearchLabelHeight'], style='G.TLabel', s_style='S.TFrame', p_style='S.TLabel')
     search_label.place(x=0, y=0)
-    rounded = RoundBox(canvas, config.parser['RoundBoxHeight'], config.width)
+    rounded = RoundBox(canvas, config.parser['RoundBoxHeight'], config.width, style='S.TLabel')
     rounded.place(x=0, y=config.parser['SearchLabelHeight'])
     
     canvas.create_entries(set_focus_color, unset_focus_color, launch_app)
