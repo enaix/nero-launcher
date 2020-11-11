@@ -24,7 +24,7 @@ EXPORT_CONFIG = {
     'DropdownButtonIconSize': 25,
     'SearchLabelHeight': 40,
     'SearchLabelForegroundColor': '#535353',
-    'SearchLabelBackgroundColor': '#e5e5e5',
+    'SearchLabelBackgroundColor': '#d9d9d9',
     'SearchLabelFontSize': 12,
     'SearchLabelIconPaddingX': 30,
     'SearchLabelIconPaddingY': 5,
