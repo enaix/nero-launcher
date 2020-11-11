@@ -26,6 +26,16 @@ Each config file must contain `CONFIG={...}` variable, please view variables.py 
 
 You shouldn't edit the variables.py file directly, because it is used as a default configuration file.
 
+## Themes
+
+To apply themes you will need to copy the theme file to `~/.config/nero-launcher` folder and add the theme name without the .py to `MODULES=[...]` variable in main.py
+
+Example:
+
+```
+MODULES=["adwaita-dark", "custom-config"]
+```
+
 ## Installation
 
 Please run `pip3 install -r requirements.txt` to install some of the libraries.
@@ -62,6 +72,8 @@ where CanvasDropdownSpeed/CanvasDropdownReturnSpeed should be between 5 and 15-2
 ## Screenshots
 
 ![nero-launcher dropdown](img/screen2.png)
+
+![nero-launcher adwaita-dark](img/screen3.png)
 
 ## Credits
 
