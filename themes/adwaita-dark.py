@@ -8,6 +8,8 @@ CONFIG={
     'FocusedButtonBackgroundColor': '#282828',
     'FocusedButtonPressedForegroundColor': '#ffffff',
     'FocusedButtonActiveForegroundColor': '#ffffff',
+    'FocusedButtonPressedBackgroundColor': '#202020',
+    'FocusedButtonActiveBackgroundColor': '#202020',
     'ButtonFrameBorderColor': '#2d2d2d',
     'SearchLabelForegroundColor': '#ffffff',
     'SearchLabelBackgroundColor': '#424242',
