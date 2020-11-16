@@ -80,6 +80,10 @@ Installation instructions are located in https://github.com/enaix/nero-launcher/
 
 ![nero-launcher adwaita-dark](img/screen3.png)
 
+## Troubleshooting
+
+In case of Nero not launching after the code update please clear app cache by removing appcache.json and appmeta.json
+
 ## Credits
 
 Thanks @bahamas10 for the cec-keypresses script (https://gist.github.com/bahamas10/6996290)
