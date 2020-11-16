@@ -93,6 +93,11 @@ class Config():
             if self.app_meta.get(self.apps[i]['Name']) is None:
                 self.app_meta[self.apps[i]['Name']] = {'Launchs': 0, 'App': self.apps[i]}
 
+    def addToMeta(self, apps):
+        for i in range(len(apps)):
+            if self.app_meta.get('_custom:'+apps[i]['Name']) is None:
+                self.app_meta['_custom:'+apps[i]['Name']] = {'Launchs': 0, 'App': self.apps[i]}
+
     def rescan(self, *args, **kwargs):
         self.apps = []
         for folder in self.parser['DesktopFolders']:
@@ -118,7 +123,7 @@ class Config():
     def scanApp(self, path):
         conf = configparser.ConfigParser(interpolation=None)
         conf.read(path)
-        res = {'Name': None, 'Exec': None, 'Icon': None, 'IconPath': None}
+        res = {'Name': None, 'Exec': None, 'Icon': None, 'IconPath': None, 'Prefix': ''}
         if 'Name' in conf['Desktop Entry']:
             res['Name'] = conf['Desktop Entry']['Name']
         if 'Exec' in conf['Desktop Entry']:
@@ -131,7 +136,7 @@ class Config():
 config = Config()
 
 class AppButton(ttk.Frame):
-    def __init__(self, parent, text="", f_style=None, height=None, width=None, img_width=config.parser['ButtonImageSize'], compound='top', image_path=None, *args, **kwargs):
+    def __init__(self, parent, text="", f_style=None, height=None, width=None, app_prefix='', img_width=config.parser['ButtonImageSize'], compound='top', image_path=None, *args, **kwargs):
         ttk.Frame.__init__(self, parent, height=height, width=width, style=f_style)
         if not image_path == None:
             try:
@@ -150,6 +155,7 @@ class AppButton(ttk.Frame):
             self.launch()
         self._btn.exec_launch = exec_launch
         self._btn.text = text
+        self._btn.app_prefix = app_prefix
 
     def focus_on_btn(self):
         self.focus_set()
@@ -164,7 +170,7 @@ class AppButton(ttk.Frame):
     def launch(self):
         if not self.exec_path == None:
             # Export metadata
-            config.app_meta[self._btn.text]['Launchs'] += 1
+            config.app_meta[self._btn.app_prefix + self._btn.text]['Launchs'] += 1
             config.exportMeta(config.parser['AppMetaFileLocation'])
             os.system("./launcher.sh " + self.exec_path + " 2>&1")
 
@@ -230,7 +236,7 @@ class CanvasBox(tk.Canvas):
         for i in range(self.entries_amount):
             if i >= len(self.search_elems):
                 continue
-            btn = AppButton(self, self.search_elems[i]['Name'], f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], compound='left', style='W.TButton', image_path=self.search_elems[i]['IconPath'])
+            btn = AppButton(self, self.search_elems[i]['Name'], f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], app_prefix=self.search_elems[i]['Prefix'], compound='left', style='W.TButton', image_path=self.search_elems[i]['IconPath'])
             btn.exec_path = self.search_elems[i]['Exec']
             btn.place(x=0, y=config.top_panel_height+i*config.parser['DropdownButtonHeight'])
             btn.bind("<FocusIn>", focus_func)
@@ -257,7 +263,7 @@ class CanvasBox(tk.Canvas):
         for i in range(self.entries_amount):
             if i >= len(self.search_elems):
                 continue
-            btn = AppButton(self, self.search_elems[i]['Name'], f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], compound='left', style='W.TButton', image_path=self.search_elems[i]['IconPath'])
+            btn = AppButton(self, self.search_elems[i]['Name'], f_style='L.TFrame', width=config.width, height=config.parser['DropdownButtonHeight'], img_width=config.parser['DropdownButtonIconSize'], app_prefix=self.search_elems[i]['Prefix'], compound='left', style='W.TButton', image_path=self.search_elems[i]['IconPath'])
             btn.exec_path = self.search_elems[i]['Exec']
             btn.place(x=0, y=config.top_panel_height+i*config.parser['DropdownButtonHeight'])
             btn.bind("<FocusIn>", self.focus_func)
@@ -370,6 +376,8 @@ def main():
                     app['Name'] = config.parser['Apps'][i][j]['Name']
                     app['IconPath'] = config.parser['Apps'][i][j]['IconPath']
                     app['Exec'] = config.parser['Apps'][i][j]['Exec']
+                    app['Prefix'] = '_custom:'
+                    config.addToMeta([app])
                 elif len(config.parser['Apps'][i][j]) == 1:
                     app = config.scanApp(config.parser['Apps'][i][j]['Desktop'])
             else:
@@ -377,7 +385,7 @@ def main():
                     app = popular_apps[i*config.parser['ButtonsAmountX'] + j][1]['App']
                 except IndexError:
                     pass
-            btn = AppButton(window, app['Name'], f_style='L.TFrame', width=config.parser['ButtonWidth'], height=config.parser['ButtonHeight'], image_path=app['IconPath'], style='W.TButton')
+            btn = AppButton(window, app['Name'], f_style='L.TFrame', width=config.parser['ButtonWidth'], height=config.parser['ButtonHeight'], image_path=app['IconPath'], app_prefix=app['Prefix'], style='W.TButton')
             btn.exec_path = app['Exec']
             btn.grid(row=i+2, column=j)
             btn.bind("<FocusIn>", set_focus_color)
