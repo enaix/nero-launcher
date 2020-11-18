@@ -15,5 +15,5 @@ CONFIG={
     'SearchLabelBackgroundColor': '#3c3836',
     'SearchLabelIconPath': './ui/search-gruvbox-dark.png',
     'RoundBoxPath': './ui/rounded-gruvbox-dark.png',
-    'CanvasBackgroundColor': '#2d2d2d',
+    'CanvasBackgroundColor': '#32302f',
 }
