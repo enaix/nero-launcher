@@ -36,6 +36,8 @@ Example:
 MODULES=["adwaita-dark", "custom-config"]
 ```
 
+### Theme files with screenshots are located under https://github.com/enaix/nero-launcher/tree/master/themes
+
 ## Installation
 
 Please run `pip3 install -r requirements.txt` to install some of the libraries.
