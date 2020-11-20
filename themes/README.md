@@ -30,6 +30,8 @@ Author: https://github.com/dracula/dracula-theme
 
 ![nero-launcher shatter](https://raw.githubusercontent.com/enaix/nero-launcher/master/img/shatter-theme.png)
 
+You may want to edit the top bar accent color, just change the `ACCENT_COLOR` variable inside the theme file.
+
 ## Raspberry
 
 ![nero-launcher raspberry](https://raw.githubusercontent.com/enaix/nero-launcher/master/img/raspberry-theme.png)
