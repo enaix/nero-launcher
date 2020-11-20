@@ -400,7 +400,7 @@ def main():
     search_label = LabelBox(canvas, 'Start typing...', width=config.width, height=config.parser['SearchLabelHeight'], style='G.TLabel', s_style='S.TFrame', p_style='S.TLabel')
     search_label.place(x=0, y=0)
     rounded = RoundBox(canvas, config.parser['RoundBoxHeight'], config.width, style='S.TLabel')
-    rounded.place(x=0, y=config.parser['SearchLabelHeight'])
+    rounded.place(x=-1, y=config.parser['SearchLabelHeight'])
     
     canvas.create_entries(set_focus_color, unset_focus_color, launch_app)
 
