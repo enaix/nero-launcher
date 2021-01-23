@@ -49,6 +49,9 @@ filter() {
 
 echo as | cec-client | filter | \
 while read cmd; do
+	if pgrep -x "kodi" > /dev/null; then
+		continue
+	fi
 	case "$cmd" in
 		right) onright;;
 		left) onleft;;
